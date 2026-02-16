@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auto Spares | VintAuto Company</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    body { font-family: 'Inter', 'Segoe UI', sans-serif; }
+    .payment-option {
+      cursor: pointer;
+      border: 2px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      padding: 1rem;
+      transition: all 0.3s ease;
+      background: rgba(255,255,255,0.04);
+    }
+    .payment-option:hover {
+      border-color: rgba(232, 168, 37, 0.4);
+      background: rgba(232, 168, 37, 0.06);
+    }
+    .payment-option.selected {
+      border-color: #e8a825;
+      background: rgba(232, 168, 37, 0.1);
+    }
+    .payment-option-inner {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    .payment-option-inner .material-icons {
+      font-size: 1.6rem;
+      color: #e8a825;
+    }
+    .payment-option-inner h6 {
+      color: #f5f5f5;
+      font-weight: 600;
+    }
+    .payment-option-inner small {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.82rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============ NAVBAR ============ -->
+  <nav class="navbar navbar-expand-lg fixed-top" id="mainNavbar">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">Vinny <span>JK</span> Company</a>
+      <button class="navbar-toggler" type="button" onclick="toggleMobileNav()">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="navbar-collapse" id="navbarNav">
+        <button class="btn-close btn-close-white d-lg-none" style="position:absolute;top:1.2rem;right:1.2rem;" onclick="toggleMobileNav()"></button>
+        <ul class="navbar-nav ms-auto align-items-lg-center">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
+          <li class="nav-item"><a class="nav-link active" href="products.html">Auto Spares</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">About &amp; Contact</a></li>
+          <li class="nav-item nav-cta ms-lg-2"><a class="nav-link" href="services.html#booking">Book Now</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <div class="navbar-overlay" id="navbarOverlay" onclick="toggleMobileNav()"></div>
+
+  <!-- ============ PAGE HEADER ============ -->
+  <section class="page-header">
+    <div class="container">
+      <h1>Auto Spare Parts</h1>
+      <p>Genuine spare parts for all vehicle makes and models. Order online with delivery.</p>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Auto Spares</li>
+        </ol>
+      </nav>
+    </div>
+  </section>
+
+  <!-- ============ PRODUCTS LISTING ============ -->
+  <section class="section-padding">
+    <div class="container">
+      <!-- Search / Filter Bar -->
+      <div class="filter-bar d-flex flex-wrap align-items-center gap-3">
+        <div class="flex-grow-1">
+          <input type="text" class="form-control" id="productSearch" placeholder="Search auto spares...">
+        </div>
+        <div>
+          <select class="form-select" id="productFilter">
+            <option value="all">All Products</option>
+            <option value="in-stock">In Stock Only</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row g-4" id="productsContainer">
+        <!-- Products loaded dynamically via JS -->
+        <div class="loading-spinner">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fallback: static preview if API isn't running -->
+      <div class="row g-4 d-none" id="productsStaticFallback">
+        <div class="col-sm-6 col-lg-4 col-xl-3">
+          <div class="card-custom">
+            <img src="../Designs/1000025976.jpg" class="card-img-top" alt="Auto Spare Part">
+            <div class="card-body">
+              <h5 class="card-title">Brake Pads - Front</h5>
+              <p class="card-text">High-quality front brake pads compatible with a wide range of vehicles. Reliable stopping power.</p>
+              <div class="card-price">KSh 2,500</div>
+              <span class="card-stock in-stock">In Stock (15 units)</span>
+            </div>
+            <div class="card-footer-custom">
+              <button class="btn btn-primary-custom w-100" data-bs-toggle="modal" data-bs-target="#orderModal">Order Now</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-4 col-xl-3">
+          <div class="card-custom">
+            <img src="../Designs/1000025977.jpg" class="card-img-top" alt="Auto Spare Part">
+            <div class="card-body">
+              <h5 class="card-title">Oil Filter</h5>
+              <p class="card-text">Universal oil filter for smooth engine performance. Fits most sedan and SUV models.</p>
+              <div class="card-price">KSh 800</div>
+              <span class="card-stock in-stock">In Stock (30 units)</span>
+            </div>
+            <div class="card-footer-custom">
+              <button class="btn btn-primary-custom w-100" data-bs-toggle="modal" data-bs-target="#orderModal">Order Now</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-4 col-xl-3">
+          <div class="card-custom">
+            <img src="../Designs/1000025978.jpg" class="card-img-top" alt="Auto Spare Part">
+            <div class="card-body">
+              <h5 class="card-title">Side Mirror - Left</h5>
+              <p class="card-text">Replacement side mirror. Check compatibility with your vehicle model before ordering.</p>
+              <div class="card-price">KSh 3,200</div>
+              <span class="card-stock in-stock">In Stock (8 units)</span>
+            </div>
+            <div class="card-footer-custom">
+              <button class="btn btn-primary-custom w-100" data-bs-toggle="modal" data-bs-target="#orderModal">Order Now</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-lg-4 col-xl-3">
+          <div class="card-custom">
+            <img src="../Designs/1000025979.jpg" class="card-img-top" alt="Auto Spare Part">
+            <div class="card-body">
+              <h5 class="card-title">Air Filter</h5>
+              <p class="card-text">Quality air filter to keep your engine breathing clean. Compatible with most vehicle types.</p>
+              <div class="card-price">KSh 1,200</div>
+              <span class="card-stock out-of-stock">Out of Stock</span>
+            </div>
+            <div class="card-footer-custom">
+              <button class="btn btn-dark-custom w-100" disabled>Out of Stock</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- No Results -->
+      <div class="no-results d-none" id="noProductsFound">
+        <span class="material-icons">search_off</span>
+        <h5>No products found</h5>
+        <p>Try adjusting your search or filter.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ORDER MODAL ============ -->
+  <div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="orderModalLabel">Place Order</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Success / Error Alerts -->
+          <div class="alert alert-success alert-custom d-none" id="orderSuccess" role="alert">
+            Your order has been placed successfully! We'll contact you shortly to confirm.
+          </div>
+          <div class="alert alert-danger alert-custom d-none" id="orderError" role="alert">
+            Something went wrong. Please try again.
+          </div>
+
+          <form id="orderForm">
+            <input type="hidden" id="orderGoodsId">
+            <div class="row g-3">
+              <!-- Product Info -->
+              <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center p-3 rounded" style="background: var(--bg-light);">
+                  <div>
+                    <h6 class="mb-1" id="orderProductName">Product Name</h6>
+                    <span class="text-muted" id="orderUnitPrice">Unit Price: KSh 0</span>
+                  </div>
+                  <div class="card-price mb-0" id="orderTotalDisplay">KSh 0</div>
+                </div>
+              </div>
+
+              <!-- Quantity -->
+              <div class="col-md-4">
+                <label for="orderQuantity" class="form-label">Quantity</label>
+                <input type="number" class="form-control" id="orderQuantity" min="1" value="1" required>
+              </div>
+
+              <!-- Full Name -->
+              <div class="col-md-8">
+                <label for="orderName" class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="orderName" placeholder="John Doe" required>
+              </div>
+
+              <!-- Phone -->
+              <div class="col-md-6">
+                <label for="orderPhone" class="form-label">Phone Number</label>
+                <input type="tel" class="form-control" id="orderPhone" placeholder="+254 7XX XXX XXX" required>
+              </div>
+
+              <!-- Vehicle Make -->
+              <div class="col-md-6">
+                <label for="orderVehicleMake" class="form-label">Vehicle Make</label>
+                <input type="text" class="form-control" id="orderVehicleMake" placeholder="e.g. Toyota">
+              </div>
+
+              <!-- Vehicle Model -->
+              <div class="col-md-6">
+                <label for="orderVehicleModel" class="form-label">Vehicle Model</label>
+                <input type="text" class="form-control" id="orderVehicleModel" placeholder="e.g. Corolla">
+              </div>
+
+              <!-- Vehicle Year -->
+              <div class="col-md-6">
+                <label for="orderVehicleYear" class="form-label">Vehicle Year</label>
+                <input type="text" class="form-control" id="orderVehicleYear" placeholder="e.g. 2020">
+              </div>
+
+              <!-- Auto Part -->
+              <div class="col-12">
+                <label for="orderAutoPart" class="form-label">Auto Part Description (optional)</label>
+                <input type="text" class="form-control" id="orderAutoPart" placeholder="Specify exact part if needed">
+              </div>
+
+              <!-- Estate -->
+              <div class="col-md-6">
+                <label for="orderEstate" class="form-label">Estate / Area</label>
+                <input type="text" class="form-control" id="orderEstate" placeholder="e.g. Westlands" required>
+              </div>
+
+              <!-- Street Address -->
+              <div class="col-md-6">
+                <label for="orderStreet" class="form-label">Street Address</label>
+                <input type="text" class="form-control" id="orderStreet" placeholder="e.g. 123 Main St" required>
+              </div>
+
+              <!-- Payment Method -->
+              <div class="col-12">
+                <label class="form-label">Payment Method</label>
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <div class="payment-option" id="payOnlineOption" onclick="selectPayment('online')">
+                      <input type="radio" name="paymentMethod" id="payOnline" value="online" class="d-none">
+                      <div class="payment-option-inner">
+                        <span class="material-icons">payment</span>
+                        <div>
+                          <h6 class="mb-0">Pay Online (M-Pesa)</h6>
+                          <small>Pay now before delivery</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="payment-option" id="payDeliveryOption" onclick="selectPayment('delivery')">
+                      <input type="radio" name="paymentMethod" id="payDelivery" value="delivery" class="d-none">
+                      <div class="payment-option-inner">
+                        <span class="material-icons">local_shipping</span>
+                        <div>
+                          <h6 class="mb-0">Pay on Delivery</h6>
+                          <small>Cash or M-Pesa on arrival</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Online Payment Details (shown when Pay Online selected) -->
+              <div class="col-12 d-none" id="onlinePaymentDetails">
+                <div class="p-3 rounded" style="background: rgba(232, 168, 37, 0.1); border: 1px solid rgba(232, 168, 37, 0.25);">
+                  <h6 class="mb-2" style="color: var(--secondary);">M-Pesa Payment Instructions</h6>
+                  <ol class="mb-2" style="font-size: 0.9rem; padding-left: 1.2rem; color: rgba(255,255,255,0.75);">
+                    <li>Go to M-Pesa on your phone</li>
+                    <li>Select <strong>Lipa na M-Pesa</strong> &gt; <strong>Pay Bill</strong></li>
+                    <li>Business Number: <strong style="color: var(--secondary);">XXXXXX</strong></li>
+                    <li>Account Number: <strong style="color: var(--secondary);">Your Phone Number</strong></li>
+                    <li>Enter the amount shown above</li>
+                  </ol>
+                  <div class="mb-2">
+                    <label for="orderMpesaCode" class="form-label">M-Pesa Transaction Code</label>
+                    <input type="text" class="form-control" id="orderMpesaCode" placeholder="e.g. SCI4XXXXXX" style="text-transform: uppercase;">
+                  </div>
+                  <small style="color: rgba(255,255,255,0.5);">Enter the M-Pesa confirmation code you received after payment.</small>
+                </div>
+              </div>
+
+              <!-- Delivery Note (shown when Pay on Delivery selected) -->
+              <div class="col-12 d-none" id="deliveryPaymentNote">
+                <div class="p-3 rounded" style="background: rgba(40, 167, 69, 0.1); border: 1px solid rgba(40, 167, 69, 0.25);">
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="material-icons" style="color: #28a745;">info</span>
+                    <span style="font-size: 0.9rem; color: rgba(255,255,255,0.75);">
+                      Payment will be collected upon delivery. Have cash or M-Pesa ready. Our delivery agent will contact you to confirm.
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary-custom" id="orderSubmitBtn">Place Order</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ CTA ============ -->
+  <section class="cta-section text-center">
+    <div class="container">
+      <h2>Need a Service Instead?</h2>
+      <p class="mx-auto" style="max-width: 550px;">
+        Book a tinting or auto service appointment online. Quick, easy, and convenient.
+      </p>
+      <a href="services.html#booking" class="btn btn-primary-custom">Book a Service</a>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+          <h5>Vinny <span class="text-secondary-custom">JK</span> Company</h5>
+          <p>Professional tinting services and genuine auto spare parts. Your trusted partner for all your vehicle needs.</p>
+        </div>
+        <div class="col-lg-2 col-md-6">
+          <h5>Quick Links</h5>
+          <ul class="footer-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="products.html">Auto Spares</a></li>
+            <li><a href="about.html">About &amp; Contact</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <h5>Our Services</h5>
+          <ul class="footer-links">
+            <li><a href="services.html">Window Tinting</a></li>
+            <li><a href="services.html">Vehicle Accessories</a></li>
+            <li><a href="products.html">Spare Parts</a></li>
+            <li><a href="services.html#booking">Book Appointment</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <h5>Contact Info</h5>
+          <div class="footer-contact-item">
+            <span class="material-icons">location_on</span>
+            <span>Nairobi, Kenya</span>
+          </div>
+          <div class="footer-contact-item">
+            <span class="material-icons">phone</span>
+            <span>+254 700 000 000</span>
+          </div>
+          <div class="footer-contact-item">
+            <span class="material-icons">email</span>
+            <span>info@vinnyjk.co.ke</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom text-center">
+        <p>&copy; 2026 VintAuto Company. All Rights Reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Back to Top -->
+  <button class="back-to-top" id="backToTop" title="Back to top">
+    <span class="material-icons">keyboard_arrow_up</span>
+  </button>
+
+  <!-- Floating Contact -->
+  <div class="floating-contact">
+    <a href="tel:+254700000000" class="fab-btn fab-call" title="Call Us">
+      <span class="material-icons">phone</span>
+    </a>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

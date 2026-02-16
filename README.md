@@ -33,7 +33,7 @@ Tech Stack
 ```
 backend/
 │
-├── vinny_jk/                  
+├── VintAutojk/                  
 │   ├── settings.py
 │   ├── urls.py
 │   └── wsgi.py
@@ -132,7 +132,7 @@ All APIs are tested using **Postman**.
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/EngTimoh/Vinny_JK_Company.
+git clone https://github.com/EngTimoh/VintAutoJK_Company.
 cd tinting-auto-spares-backend
 ```
 

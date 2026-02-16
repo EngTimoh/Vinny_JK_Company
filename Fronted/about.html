@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About &amp; Contact | VintAuto Company</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>body { font-family: 'Inter', 'Segoe UI', sans-serif; }</style>
+</head>
+<body>
+
+  <!-- ============ NAVBAR ============ -->
+  <nav class="navbar navbar-expand-lg fixed-top" id="mainNavbar">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">Vinny <span>JK</span> Company</a>
+      <button class="navbar-toggler" type="button" onclick="toggleMobileNav()">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="navbar-collapse" id="navbarNav">
+        <button class="btn-close btn-close-white d-lg-none" style="position:absolute;top:1.2rem;right:1.2rem;" onclick="toggleMobileNav()"></button>
+        <ul class="navbar-nav ms-auto align-items-lg-center">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="products.html">Auto Spares</a></li>
+          <li class="nav-item"><a class="nav-link active" href="about.html">About &amp; Contact</a></li>
+          <li class="nav-item nav-cta ms-lg-2"><a class="nav-link" href="services.html#booking">Book Now</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <div class="navbar-overlay" id="navbarOverlay" onclick="toggleMobileNav()"></div>
+
+  <!-- ============ PAGE HEADER ============ -->
+  <section class="page-header">
+    <div class="container">
+      <h1>About &amp; Contact Us</h1>
+      <p>Get to know who we are and how to reach us.</p>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+          <li class="breadcrumb-item active" aria-current="page">About &amp; Contact</li>
+        </ol>
+      </nav>
+    </div>
+  </section>
+
+  <!-- ============ ABOUT SECTION ============ -->
+  <section class="section-padding" id="about">
+    <div class="container">
+      <div class="row align-items-center g-5">
+        <div class="col-lg-6">
+          <div class="about-img-wrapper">
+            <img src="../Designs/1000025974.jpg" alt="About VintAuto Company">
+            <div class="about-badge">Quality &amp; Trust</div>
+          </div>
+        </div>
+        <div class="col-lg-6 about-text">
+          <p class="text-secondary-custom fw-semibold mb-1">ABOUT US</p>
+          <h2>VintAuto Company</h2>
+          <p>
+            VintAuto Company is a trusted name in the automotive aftermarket industry. 
+            We specialize in professional window tinting, vehicle accessories, and genuine 
+            auto spare parts. Our mission is simple: deliver quality products and services 
+            at fair prices, with customer satisfaction at the heart of everything we do.
+          </p>
+          <p>
+            Located in Nairobi, Kenya, we serve vehicle owners across the region. Whether 
+            you need a full tint job, a specific spare part for your car, or professional 
+            advice on vehicle maintenance — we're here to help.
+          </p>
+          <p>
+            With a team of experienced technicians and a commitment to using only 
+            high-quality materials, we ensure every customer drives away satisfied.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OUR VALUES ============ -->
+  <section class="section-padding bg-light-custom">
+    <div class="container">
+      <div class="text-center mb-5">
+        <p class="text-secondary-custom fw-semibold mb-1">OUR VALUES</p>
+        <h2 class="section-title">What We Stand For</h2>
+      </div>
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-box">
+            <div class="feature-icon">
+              <span class="material-icons">workspace_premium</span>
+            </div>
+            <h5>Quality First</h5>
+            <p>We never compromise on the quality of our products or workmanship.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-box">
+            <div class="feature-icon">
+              <span class="material-icons">handshake</span>
+            </div>
+            <h5>Customer Trust</h5>
+            <p>Building lasting relationships through honest and transparent service.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-box">
+            <div class="feature-icon">
+              <span class="material-icons">trending_up</span>
+            </div>
+            <h5>Continuous Growth</h5>
+            <p>Always improving our services and expanding our product range.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-box">
+            <div class="feature-icon">
+              <span class="material-icons">groups</span>
+            </div>
+            <h5>Community Focus</h5>
+            <p>Serving our local community with pride and dedication.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GALLERY ============ -->
+  <section class="section-padding" id="gallery">
+    <div class="container">
+      <div class="text-center mb-5">
+        <p class="text-secondary-custom fw-semibold mb-1">OUR WORK</p>
+        <h2 class="section-title">Gallery</h2>
+        <p class="section-subtitle">A look at some of our recent work and products.</p>
+      </div>
+      <div class="row g-3">
+        <div class="col-6 col-md-4 col-lg-3">
+          <div style="border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);">
+            <img src="../Designs/1000025963.jpg" alt="Work sample" style="width:100%; height:200px; object-fit:cover;">
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+          <div style="border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);">
+            <img src="../Designs/1000025972.jpg" alt="Work sample" style="width:100%; height:200px; object-fit:cover;">
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+          <div style="border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);">
+            <img src="../Designs/1000025973.jpg" alt="Work sample" style="width:100%; height:200px; object-fit:cover;">
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+          <div style="border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);">
+            <img src="../Designs/1000025975.jpg" alt="Work sample" style="width:100%; height:200px; object-fit:cover;">
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+          <div style="border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);">
+            <img src="../Designs/1000025976.jpg" alt="Work sample" style="width:100%; height:200px; object-fit:cover;">
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+          <div style="border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);">
+            <img src="../Designs/1000025977.jpg" alt="Work sample" style="width:100%; height:200px; object-fit:cover;">
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+          <div style="border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);">
+            <img src="../Designs/1000025978.jpg" alt="Work sample" style="width:100%; height:200px; object-fit:cover;">
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+          <div style="border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);">
+            <img src="../Designs/1000025979.jpg" alt="Work sample" style="width:100%; height:200px; object-fit:cover;">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CONTACT & MAP ============ -->
+  <section class="form-section section-padding" id="contact">
+    <div class="container">
+      <div class="text-center mb-5">
+        <p class="text-secondary-custom fw-semibold mb-1">GET IN TOUCH</p>
+        <h2 class="section-title">Contact Us</h2>
+        <p class="section-subtitle">Have a question? Want a quote? Reach out to us below.</p>
+      </div>
+      <div class="row g-4">
+        <!-- Contact Information -->
+        <div class="col-lg-5">
+          <div class="contact-info-card" style="background: var(--primary); color: var(--text-light);">
+            <h4 style="color: var(--text-light);">Contact Information</h4>
+            <p style="color: rgba(255,255,255,0.7); margin-bottom: 2rem;">
+              Reach out to us through any of the channels below. We'd love to hear from you.
+            </p>
+            <div class="contact-info-item" style="margin-bottom: 1.8rem;">
+              <span class="material-icons">location_on</span>
+              <div>
+                <h6 style="color: var(--secondary);">Our Address</h6>
+                <p style="color: rgba(255,255,255,0.7);">Nairobi, Kenya</p>
+              </div>
+            </div>
+            <div class="contact-info-item" style="margin-bottom: 1.8rem;">
+              <span class="material-icons">phone</span>
+              <div>
+                <h6 style="color: var(--secondary);">Phone Number</h6>
+                <p style="color: rgba(255,255,255,0.7);">+254 700 000 000</p>
+              </div>
+            </div>
+            <div class="contact-info-item" style="margin-bottom: 1.8rem;">
+              <span class="material-icons">email</span>
+              <div>
+                <h6 style="color: var(--secondary);">Email Address</h6>
+                <p style="color: rgba(255,255,255,0.7);">info@vinnyjk.co.ke</p>
+              </div>
+            </div>
+            <div class="contact-info-item">
+              <span class="material-icons">access_time</span>
+              <div>
+                <h6 style="color: var(--secondary);">Working Hours</h6>
+                <p style="color: rgba(255,255,255,0.7);">Mon - Sat: 8:00 AM - 6:00 PM<br>Sunday: Closed</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact Form / Message -->
+        <div class="col-lg-7">
+          <div class="form-card">
+            <h3>Send Us a Message</h3>
+            <p class="text-muted mb-4">
+              For service bookings, please use our <a href="services.html#booking">booking form</a>. 
+              For product orders, visit our <a href="products.html">Auto Spares</a> page.
+            </p>
+            <form id="contactForm">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="contactName" class="form-label">Your Name</label>
+                  <input type="text" class="form-control" id="contactName" placeholder="John Doe" required>
+                </div>
+                <div class="col-md-6">
+                  <label for="contactPhone" class="form-label">Phone Number</label>
+                  <input type="tel" class="form-control" id="contactPhone" placeholder="+254 7XX XXX XXX" required>
+                </div>
+                <div class="col-12">
+                  <label for="contactEmail" class="form-label">Email Address (optional)</label>
+                  <input type="email" class="form-control" id="contactEmail" placeholder="john@example.com">
+                </div>
+                <div class="col-12">
+                  <label for="contactSubject" class="form-label">Subject</label>
+                  <input type="text" class="form-control" id="contactSubject" placeholder="e.g. General Inquiry" required>
+                </div>
+                <div class="col-12">
+                  <label for="contactMessage" class="form-label">Message</label>
+                  <textarea class="form-control" id="contactMessage" rows="5" placeholder="How can we help you?" required></textarea>
+                </div>
+                <div class="col-12">
+                  <button type="submit" class="btn btn-primary-custom">Send Message</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MAP ============ -->
+  <section class="section-padding" id="map">
+    <div class="container">
+      <div class="text-center mb-4">
+        <p class="text-secondary-custom fw-semibold mb-1">DIRECTIONS</p>
+        <h2 class="section-title">Find Us on the Map</h2>
+      </div>
+      <div class="map-wrapper" style="height: 450px;">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15955.571384050045!2d36.8219!3d-1.2921!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMcKwMTcnMzEuNiJTIDM2wrA0OSczMS40IkU!5e0!3m2!1sen!2ske!4v1700000000000"
+          allowfullscreen=""
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          title="VintAuto Company Location">
+        </iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+          <h5>Vinny <span class="text-secondary-custom">JK</span> Company</h5>
+          <p>Professional tinting services and genuine auto spare parts. Your trusted partner for all your vehicle needs.</p>
+        </div>
+        <div class="col-lg-2 col-md-6">
+          <h5>Quick Links</h5>
+          <ul class="footer-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="products.html">Auto Spares</a></li>
+            <li><a href="about.html">About &amp; Contact</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <h5>Our Services</h5>
+          <ul class="footer-links">
+            <li><a href="services.html">Window Tinting</a></li>
+            <li><a href="services.html">Vehicle Accessories</a></li>
+            <li><a href="products.html">Spare Parts</a></li>
+            <li><a href="services.html#booking">Book Appointment</a></li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <h5>Contact Info</h5>
+          <div class="footer-contact-item">
+            <span class="material-icons">location_on</span>
+            <span>Nairobi, Kenya</span>
+          </div>
+          <div class="footer-contact-item">
+            <span class="material-icons">phone</span>
+            <span>+254 700 000 000</span>
+          </div>
+          <div class="footer-contact-item">
+            <span class="material-icons">email</span>
+            <span>info@vinnyjk.co.ke</span>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom text-center">
+        <p>&copy; 2026 VintAuto Company. All Rights Reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Back to Top -->
+  <button class="back-to-top" id="backToTop" title="Back to top">
+    <span class="material-icons">keyboard_arrow_up</span>
+  </button>
+
+  <!-- Floating Contact -->
+  <div class="floating-contact">
+    <a href="tel:+254700000000" class="fab-btn fab-call" title="Call Us">
+      <span class="material-icons">phone</span>
+    </a>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
