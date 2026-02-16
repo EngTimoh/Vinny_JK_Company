@@ -2,7 +2,9 @@ from rest_framework import generics
 from .models import Services, Goods, Order, Booking
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from django.db.models.functions import TruncDay, TruncMonth,TruncWeek
 from rest_framework import status
+from django.db.models import Sum, Count
 from datetime import timedelta
 from django.utils import timezone
 from .serializers import (
@@ -136,11 +138,44 @@ def create_booking(request):
             status=status.HTTP_404_NOT_FOUND
         )
 
+
     except Exception as e:
         return Response(
             {"error": str(e)},
             status=status.HTTP_400_BAD_REQUEST
         )
+
+        # Logic for avoid booking in the past
+        if booking.booking_date < timezone.now().date():
+            return Response(
+                {"error": "Booking date cannot be in the past"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+            #logic for avoid booking twice
+            if Booking.objects.filter(full_name=booking.full_name, booking_date=booking.booking_date, booking_time=booking.booking_time).exists():
+                return Response(
+                    {"error": "Booking already exists"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+                
+booking_time = datetime.strptime(request.data['booking_time'], "%H:%M").time()
+booking_date = request.data['booking_date']
+service = Services.objects.get(id=request.data['service'])
+
+existing_booking = Booking.objects.filter(
+    services=service,
+    booking_date=booking_date,
+    booking_time=booking_time,
+    status__in=['pending', 'confirmed']
+).exists()
+
+if existing_booking:
+    return Response(
+        {"error": "This time slot is already booked."},
+        status=400
+    )
+                
 # stock reduction logic
 @api_view(['POST'])
 def create_order(request):
@@ -279,6 +314,11 @@ def cancel_booking(request, booking_id):
                     },
                     status=status.HTTP_403_FORBIDDEN
                 )
+            if booking.status not in ['pending', 'confirmed']:
+                return Response(
+                    {"error": "Only pending or confirmed bookings can be cancelled"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )    
 
             booking.is_cancelled = True
             booking.is_pending = False
@@ -295,3 +335,130 @@ def cancel_booking(request, booking_id):
             {"error": "Booking not found"},
             status=status.HTTP_404_NOT_FOUND
         )
+
+
+@api_view(['POST'])
+def confirm_booking(request, booking_id):
+    booking = Booking.objects.get(id=booking_id)
+
+    if booking.status != 'pending':
+        return Response(
+            {"error": "Only pending bookings can be confirmed"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    booking.status = 'confirmed'
+    booking.save()
+
+    return Response({"message": "Booking confirmed"})
+
+
+@api_view(['POST'])
+def complete_booking(request, booking_id):
+    booking = Booking.objects.get(id=booking_id)
+
+    if booking.status != 'confirmed':
+        return Response(
+            {"error": "Only confirmed bookings can be completed"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    booking.status = 'completed'
+    booking.save()
+
+    return Response({"message": "Booking completed"})
+
+
+@api_view(['GET'])
+def bookings_summary(request):
+    total = Booking.objects.count()
+    pending = Booking.objects.filter(status='pending').count()
+    confirmed = Booking.objects.filter(status='confirmed').count()
+    completed = Booking.objects.filter(status='completed').count()
+    cancelled = Booking.objects.filter(status='cancelled').count()
+
+    return Response({
+        "total_bookings": total,
+        "pending": pending,
+        "confirmed": confirmed,
+        "completed": completed,
+        "cancelled": cancelled
+    })
+
+@api_view(['GET'])
+def booking_revenue(request):
+    revenue = Booking.objects.filter(
+        status='completed'
+    ).aggregate(
+        total_revenue=Sum('total_price')
+    )
+
+    return Response({
+        "completed_booking_revenue": revenue['total_revenue'] or 0
+    })
+
+@api_view(['GET'])
+def daily_bookings(request):
+    daily = Booking.objects.annotate(
+        day=TruncDay('created_at')
+    ).values('day').annotate(
+        count=Count('id')
+    ).order_by('day')
+
+    return Response(daily)
+
+@api_view(['GET'])
+def monthly_bookings(request):
+    monthly = Booking.objects.annotate(
+        month=TruncMonth('created_at')
+    ).values('month').annotate(
+        count=Count('id')
+    ).order_by('month')
+
+    return Response(monthly)
+
+@api_view(['GET'])
+def weekly_bookings(request):
+    weekly = Booking.objects.annotate(
+        week=TruncWeek('created_at')
+    ).values('week').annotate(
+        count=Count('id')
+    ).order_by('week')
+
+    return Response(weekly)
+
+AVAILABLE_TIME_SLOTS = [
+    "09:00",
+    "10:00",
+    "11:00",
+    "12:00",
+    "14:00",
+    "15:00",
+    "16:00",
+]
+#get available slots
+
+@api_view(['GET'])
+def get_available_slots(request):
+    service_id = request.GET.get('service_id')
+    booking_date = request.GET.get('booking_date')
+
+    service = Services.objects.get(id=service_id)
+
+    booked_slots = Booking.objects.filter(
+        services=service,
+        booking_date=booking_date,
+        status__in=['pending', 'confirmed']
+    ).values_list('booking_time', flat=True)
+
+    booked_slots = [time.strftime("%H:%M") for time in booked_slots]
+
+    available_slots = [
+        slot for slot in AVAILABLE_TIME_SLOTS
+        if slot not in booked_slots
+    ]
+
+    return Response({
+        "date": booking_date,
+        "available_slots": available_slots
+    })

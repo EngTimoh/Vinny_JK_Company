@@ -57,15 +57,18 @@ class Booking(models.Model):
     additional_notes = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    is_confirmed = models.BooleanField(default=False)
-    is_cancelled = models.BooleanField(default=False)
-    is_completed = models.BooleanField(default=False)
-    is_pending = models.BooleanField(default=True)
-    is_out_for_service = models.BooleanField(default=False)
+    
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('confirmed', 'Confirmed'),
+        ('cancelled', 'Cancelled'),
+        ('completed', 'Completed'),
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
 
 
 
     def __str__(self):
-        return self.name
+        return f"{self.full_name} - {self.services}"
 
 
