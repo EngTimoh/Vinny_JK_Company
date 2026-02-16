@@ -204,44 +204,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       servicesPreviewContainer.innerHTML = previewServices.map(s => renderServiceCard(s, true)).join('');
     } else {
       servicesPreviewContainer.innerHTML = `
-        <div class="col-md-6 col-lg-4">
-          <div class="card-custom">
-            <img src="../Designs/1000025972.jpg" class="card-img-top" alt="Window Tinting">
-            <div class="card-body">
-              <h5 class="card-title">Window Tinting</h5>
-              <p class="card-text">Professional window tinting for your vehicle. Premium films that protect your interior and enhance privacy.</p>
-              <div class="card-price">From KSh 3,000</div>
-            </div>
-            <div class="card-footer-custom">
-              <a href="services.html#booking" class="btn btn-primary-custom w-100">Book This Service</a>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-4">
-          <div class="card-custom">
-            <img src="../Designs/1000025973.jpg" class="card-img-top" alt="Full Vehicle Tinting">
-            <div class="card-body">
-              <h5 class="card-title">Full Vehicle Tinting</h5>
-              <p class="card-text">Complete tinting solution for your entire vehicle including all windows and rear windshield.</p>
-              <div class="card-price">From KSh 8,000</div>
-            </div>
-            <div class="card-footer-custom">
-              <a href="services.html#booking" class="btn btn-primary-custom w-100">Book This Service</a>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-4">
-          <div class="card-custom">
-            <img src="../Designs/1000025975.jpg" class="card-img-top" alt="Vehicle Accessories">
-            <div class="card-body">
-              <h5 class="card-title">Vehicle Accessories</h5>
-              <p class="card-text">Professional installation of vehicle accessories including mirrors, guards, and enhancements.</p>
-              <div class="card-price">From KSh 1,500</div>
-            </div>
-            <div class="card-footer-custom">
-              <a href="services.html#booking" class="btn btn-primary-custom w-100">Book This Service</a>
-            </div>
-          </div>
+        <div class="no-results">
+          <span class="material-icons">build_circle</span>
+          <h5>Services coming soon</h5>
+          <p>We're updating our service listings. Check back shortly.</p>
         </div>
       `;
     }
@@ -254,53 +220,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (goods && goods.length > 0) {
       allGoods = goods;
       const previewGoods = goods.filter(g => g.is_available).slice(0, 3);
-      productsPreviewContainer.innerHTML = previewGoods.map(g => renderProductCard(g, true)).join('');
-      if (previewGoods.length === 0) {
+      if (previewGoods.length > 0) {
+        productsPreviewContainer.innerHTML = previewGoods.map(g => renderProductCard(g, true)).join('');
+      } else {
         productsPreviewContainer.innerHTML = goods.slice(0, 3).map(g => renderProductCard(g, true)).join('');
       }
     } else {
       productsPreviewContainer.innerHTML = `
-        <div class="col-sm-6 col-lg-4">
-          <div class="card-custom">
-            <img src="../Designs/1000025976.jpg" class="card-img-top" alt="Auto Spare Part">
-            <div class="card-body">
-              <h5 class="card-title">Brake Pads</h5>
-              <p class="card-text">High-quality brake pads for reliable stopping power. Compatible with a wide range of vehicles.</p>
-              <div class="card-price">KSh 2,500</div>
-              <span class="card-stock in-stock">In Stock</span>
-            </div>
-            <div class="card-footer-custom">
-              <a href="products.html" class="btn btn-primary-custom w-100">View Details</a>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-6 col-lg-4">
-          <div class="card-custom">
-            <img src="../Designs/1000025977.jpg" class="card-img-top" alt="Oil Filter">
-            <div class="card-body">
-              <h5 class="card-title">Oil Filter</h5>
-              <p class="card-text">Universal oil filter for smooth engine performance. Fits most sedan and SUV models.</p>
-              <div class="card-price">KSh 800</div>
-              <span class="card-stock in-stock">In Stock</span>
-            </div>
-            <div class="card-footer-custom">
-              <a href="products.html" class="btn btn-primary-custom w-100">View Details</a>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-6 col-lg-4">
-          <div class="card-custom">
-            <img src="../Designs/1000025978.jpg" class="card-img-top" alt="Side Mirror">
-            <div class="card-body">
-              <h5 class="card-title">Side Mirror</h5>
-              <p class="card-text">Replacement side mirror for various vehicle models. Check compatibility before ordering.</p>
-              <div class="card-price">KSh 3,200</div>
-              <span class="card-stock in-stock">In Stock</span>
-            </div>
-            <div class="card-footer-custom">
-              <a href="products.html" class="btn btn-primary-custom w-100">View Details</a>
-            </div>
-          </div>
+        <div class="no-results">
+          <span class="material-icons">inventory_2</span>
+          <h5>Products coming soon</h5>
+          <p>Our auto spares catalog is being updated. Check back shortly.</p>
         </div>
       `;
     }
@@ -314,9 +244,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       allServices = services;
       servicesContainer.innerHTML = services.map(s => renderServiceCard(s, false)).join('');
     } else {
-      servicesContainer.classList.add('d-none');
-      const fallback = document.getElementById('servicesStaticFallback');
-      if (fallback) fallback.classList.remove('d-none');
+      servicesContainer.innerHTML = '';
+      const noServices = document.getElementById('noServicesFound');
+      if (noServices) noServices.classList.remove('d-none');
     }
   }
 
@@ -350,12 +280,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         sessionStorage.removeItem('selectedServicePrice');
       }
     } else {
-      bookingServiceSelect.innerHTML = `
-        <option value="" disabled selected>-- Services unavailable --</option>
-        <option value="tinting">Window Tinting - KSh 3,000</option>
-        <option value="full-tinting">Full Vehicle Tinting - KSh 8,000</option>
-        <option value="accessories">Vehicle Accessories - KSh 1,500</option>
-      `;
+      bookingServiceSelect.innerHTML = '<option value="" disabled selected>-- No services available yet --</option>';
     }
 
     // Update price on change
@@ -376,9 +301,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       allGoods = goods;
       productsContainer.innerHTML = goods.map(g => renderProductCard(g, false)).join('');
     } else {
-      productsContainer.classList.add('d-none');
-      const fallback = document.getElementById('productsStaticFallback');
-      if (fallback) fallback.classList.remove('d-none');
+      productsContainer.innerHTML = `
+        <div class="no-results">
+          <span class="material-icons">inventory_2</span>
+          <h5>No products available yet</h5>
+          <p>Our auto spares catalog is being updated. Check back soon.</p>
+        </div>
+      `;
     }
   }
 
@@ -410,6 +339,55 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (productSearch) productSearch.addEventListener('input', filterProducts);
   if (productFilter) productFilter.addEventListener('change', filterProducts);
+
+  // ---- About Page: Dynamic Gallery ----
+  const galleryContainer = document.getElementById('galleryContainer');
+  if (galleryContainer) {
+    try {
+      const [services, goods] = await Promise.all([fetchServices(), fetchGoods()]);
+      const images = [];
+
+      if (services) {
+        services.forEach(s => {
+          if (s.image) images.push({ url: s.image, alt: s.name, type: 'Service' });
+        });
+      }
+      if (goods) {
+        goods.forEach(g => {
+          if (g.image) images.push({ url: g.image, alt: g.name, type: 'Product' });
+        });
+      }
+
+      const spinner = galleryContainer.querySelector('.text-center');
+      if (spinner) spinner.remove();
+
+      const noGallery = document.getElementById('noGalleryItems');
+
+      if (images.length > 0) {
+        galleryContainer.innerHTML = images.map(img => `
+          <div class="col-6 col-md-4 col-lg-3">
+            <div class="card-custom gallery-card" style="overflow:hidden; border-radius:12px;">
+              <img src="${img.url}" alt="${img.alt}" class="card-img-top" style="height:200px; object-fit:cover;" loading="lazy">
+              <div class="card-body p-2 text-center">
+                <small class="text-muted">${img.type}</small>
+                <h6 class="mb-0 mt-1" style="font-size:0.85rem;">${img.alt}</h6>
+              </div>
+            </div>
+          </div>
+        `).join('');
+        if (noGallery) noGallery.classList.add('d-none');
+      } else {
+        galleryContainer.innerHTML = '';
+        if (noGallery) noGallery.classList.remove('d-none');
+      }
+    } catch (err) {
+      console.error('Gallery load error:', err);
+      const spinner = galleryContainer.querySelector('.text-center');
+      if (spinner) spinner.remove();
+      const noGallery = document.getElementById('noGalleryItems');
+      if (noGallery) noGallery.classList.remove('d-none');
+    }
+  }
 
   // ---- Set min date for booking ----
   const bookingDate = document.getElementById('bookingDate');

@@ -134,47 +134,18 @@
         <h2 class="section-title">Gallery</h2>
         <p class="section-subtitle">A look at some of our recent work and products.</p>
       </div>
-      <div class="row g-3">
-        <div class="col-6 col-md-4 col-lg-3">
-          <div style="border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);">
-            <img src="../Designs/1000025963.jpg" alt="Work sample" style="width:100%; height:200px; object-fit:cover;">
+      <div class="row g-3" id="galleryContainer">
+        <!-- Gallery images loaded dynamically from services + goods API -->
+        <div class="loading-spinner">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
           </div>
         </div>
-        <div class="col-6 col-md-4 col-lg-3">
-          <div style="border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);">
-            <img src="../Designs/1000025972.jpg" alt="Work sample" style="width:100%; height:200px; object-fit:cover;">
-          </div>
-        </div>
-        <div class="col-6 col-md-4 col-lg-3">
-          <div style="border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);">
-            <img src="../Designs/1000025973.jpg" alt="Work sample" style="width:100%; height:200px; object-fit:cover;">
-          </div>
-        </div>
-        <div class="col-6 col-md-4 col-lg-3">
-          <div style="border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);">
-            <img src="../Designs/1000025975.jpg" alt="Work sample" style="width:100%; height:200px; object-fit:cover;">
-          </div>
-        </div>
-        <div class="col-6 col-md-4 col-lg-3">
-          <div style="border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);">
-            <img src="../Designs/1000025976.jpg" alt="Work sample" style="width:100%; height:200px; object-fit:cover;">
-          </div>
-        </div>
-        <div class="col-6 col-md-4 col-lg-3">
-          <div style="border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);">
-            <img src="../Designs/1000025977.jpg" alt="Work sample" style="width:100%; height:200px; object-fit:cover;">
-          </div>
-        </div>
-        <div class="col-6 col-md-4 col-lg-3">
-          <div style="border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);">
-            <img src="../Designs/1000025978.jpg" alt="Work sample" style="width:100%; height:200px; object-fit:cover;">
-          </div>
-        </div>
-        <div class="col-6 col-md-4 col-lg-3">
-          <div style="border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);">
-            <img src="../Designs/1000025979.jpg" alt="Work sample" style="width:100%; height:200px; object-fit:cover;">
-          </div>
-        </div>
+      </div>
+      <div class="no-results d-none" id="noGalleryItems">
+        <span class="material-icons">photo_library</span>
+        <h5>Gallery coming soon</h5>
+        <p>Photos of our work will appear here.</p>
       </div>
     </div>
   </section>

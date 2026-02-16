@@ -57,47 +57,11 @@
         </div>
       </div>
 
-      <!-- Fallback: static preview if API isn't running -->
-      <div class="row g-4 d-none" id="servicesStaticFallback">
-        <div class="col-md-6 col-lg-4">
-          <div class="card-custom">
-            <img src="../Designs/1000025972.jpg" class="card-img-top" alt="Window Tinting">
-            <div class="card-body">
-              <h5 class="card-title">Window Tinting</h5>
-              <p class="card-text">Professional window tinting for vehicles. Protect your interior, reduce glare, and enhance privacy with premium quality films.</p>
-              <div class="card-price">From KSh 3,000</div>
-            </div>
-            <div class="card-footer-custom">
-              <button class="btn btn-primary-custom w-100" data-bs-toggle="modal" data-bs-target="#bookingModal">Book This Service</button>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-4">
-          <div class="card-custom">
-            <img src="../Designs/1000025973.jpg" class="card-img-top" alt="Full Vehicle Tinting">
-            <div class="card-body">
-              <h5 class="card-title">Full Vehicle Tinting</h5>
-              <p class="card-text">Complete tinting solution for your entire vehicle. Includes all windows and rear windshield with high-quality UV protective film.</p>
-              <div class="card-price">From KSh 8,000</div>
-            </div>
-            <div class="card-footer-custom">
-              <button class="btn btn-primary-custom w-100" data-bs-toggle="modal" data-bs-target="#bookingModal">Book This Service</button>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-4">
-          <div class="card-custom">
-            <img src="../Designs/1000025975.jpg" class="card-img-top" alt="Vehicle Accessories">
-            <div class="card-body">
-              <h5 class="card-title">Vehicle Accessories Installation</h5>
-              <p class="card-text">Professional installation of vehicle accessories including side mirrors, bumper guards, and other enhancement accessories.</p>
-              <div class="card-price">From KSh 1,500</div>
-            </div>
-            <div class="card-footer-custom">
-              <button class="btn btn-primary-custom w-100" data-bs-toggle="modal" data-bs-target="#bookingModal">Book This Service</button>
-            </div>
-          </div>
-        </div>
+      <!-- Empty state when no services available -->
+      <div class="no-results d-none" id="noServicesFound">
+        <span class="material-icons">build_circle</span>
+        <h5>No services listed yet</h5>
+        <p>Check back soon — our services are being updated.</p>
       </div>
     </div>
   </section>
