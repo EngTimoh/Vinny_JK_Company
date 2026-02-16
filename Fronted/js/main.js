@@ -1,5 +1,5 @@
 /* ============================================
-   VintAuto Company - Frontend JavaScript
+   VIN-KJ AUTO SERVICES - Frontend JavaScript
    API Integration & UI Logic
    ============================================ */
 
@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="no-results">
           <span class="material-icons">inventory_2</span>
           <h5>Products coming soon</h5>
-          <p>Our auto spares catalog is being updated. Check back shortly.</p>
+          <p>Our product catalog is being updated. Check back shortly.</p>
         </div>
       `;
     }
@@ -305,7 +305,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="no-results">
           <span class="material-icons">inventory_2</span>
           <h5>No products available yet</h5>
-          <p>Our auto spares catalog is being updated. Check back soon.</p>
+          <p>Our product catalog is being updated. Check back soon.</p>
         </div>
       `;
     }
