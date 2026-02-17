@@ -118,6 +118,16 @@ img {
   font-size: 1.4rem;
   color: var(--text-light) !important;
   letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.brand-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .navbar-brand span {
@@ -226,7 +236,7 @@ img {
 /* ---------- Hero Section ---------- */
 .hero-section {
   position: relative;
-  min-height: 92vh;
+  min-height: 70vh;
   display: flex;
   align-items: center;
   background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
@@ -240,8 +250,8 @@ img {
   left: 0;
   right: 0;
   bottom: 0;
-  background: url('../gallery/586841638_818251157747503_1054758658956930288_n.jpg') center/cover no-repeat;
-  opacity: 0.15;
+  background: url('../gallery/484059054_617059051200049_1451741418312231565_n.jpg') center/cover no-repeat;
+  opacity: 0.1;
   z-index: 0;
 }
 
