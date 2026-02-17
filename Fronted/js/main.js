@@ -343,6 +343,34 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ---- About Page: Dynamic Gallery ----
   const galleryContainer = document.getElementById('galleryContainer');
   if (galleryContainer) {
+    // Local gallery images as fallback
+    const localGalleryImages = [
+      { url: 'gallery/468725816_541147015457920_3612435359203564489_n.jpg', alt: 'Professional Tinting Work', type: 'Our Work' },
+      { url: 'gallery/480592649_603797522526202_2276869735353109726_n.jpg', alt: 'Car Window Tinting', type: 'Service' },
+      { url: 'gallery/480815279_603797535859534_1600990838320939445_n.jpg', alt: 'PPF Installation', type: 'Service' },
+      { url: 'gallery/480905254_607702505469037_4458766742337825351_n.jpg', alt: 'Vehicle Wrapping', type: 'Our Work' },
+      { url: 'gallery/480929778_607714545467833_126299976784157875_n.jpg', alt: 'Auto Detailing', type: 'Service' },
+      { url: 'gallery/481079568_611245595114728_7580914725134856650_n.jpg', alt: 'Customer Vehicle', type: 'Our Work' },
+      { url: 'gallery/481112480_607702495469038_7962479863961912081_n.jpg', alt: 'Tint Film Application', type: 'Service' },
+      { url: 'gallery/481180506_607709135468374_190577655651118514_n.jpg', alt: 'Workshop View', type: 'Our Team' },
+      { url: 'gallery/482022180_608555885383699_9034834043495382105_n.jpg', alt: 'Completed Project', type: 'Our Work' },
+      { url: 'gallery/482049731_613154678257153_5709104441709608614_n.jpg', alt: 'Car Wrapping Project', type: 'Service' },
+      { url: 'gallery/482082895_615241818048439_805679096993353287_n.jpg', alt: 'Precision Work', type: 'Our Work' },
+      { url: 'gallery/482207449_613079558264665_555383075837254529_n.jpg', alt: 'PPF Protection', type: 'Service' },
+      { url: 'gallery/482221472_607709215468366_6249463257400217156_n.jpg', alt: 'Our Team at Work', type: 'Our Team' },
+      { url: 'gallery/482348046_611829251723029_2563584746158765607_n.jpg', alt: 'Quality Results', type: 'Our Work' },
+      { url: 'gallery/483525984_617366267835994_5528536576646859471_n.jpg', alt: 'Vehicle Enhancement', type: 'Service' },
+      { url: 'gallery/484059054_617059051200049_1451741418312231565_n.jpg', alt: 'Showroom Finish', type: 'Our Work' },
+      { url: 'gallery/484105468_613154584923829_4067537156397048004_n.jpg', alt: 'Customer Satisfaction', type: 'Our Work' },
+      { url: 'gallery/484151488_617082407864380_3666535985921159564_n.jpg', alt: 'Professional Setup', type: 'Our Team' },
+      { url: 'gallery/484216410_617241604515127_8213988536216727032_n.jpg', alt: 'Tinting Process', type: 'Service' },
+      { url: 'gallery/484483825_617366271169327_19708125892829820_n.jpg', alt: 'Final Touches', type: 'Our Work' },
+      { url: 'gallery/585888932_818250024414283_8713746235952595483_n.jpg', alt: 'Latest Project', type: 'Our Work' },
+      { url: 'gallery/586841638_818251157747503_1054758658956930288_n.jpg', alt: 'Premium Service', type: 'Service' },
+      { url: 'gallery/587224962_820419377530681_6438928768554223655_n.jpg', alt: 'Expert Installation', type: 'Our Work' },
+      { url: 'gallery/593621673_824783323760953_6623332114128118648_n.jpg', alt: 'Customer Car', type: 'Our Work' },
+    ];
+
     try {
       const [services, products] = await Promise.all([fetchServices(), fetchProducts()]);
       const images = [];
@@ -358,34 +386,48 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
       }
 
+      // Use API images if available, otherwise use local gallery
+      const finalImages = images.length > 0 ? images : localGalleryImages;
+
       const spinner = galleryContainer.querySelector('.text-center');
       if (spinner) spinner.remove();
+      const loadingSpinner = galleryContainer.querySelector('.loading-spinner');
+      if (loadingSpinner) loadingSpinner.remove();
 
       const noGallery = document.getElementById('noGalleryItems');
 
-      if (images.length > 0) {
-        galleryContainer.innerHTML = images.map(img => `
-          <div class="col-6 col-md-4 col-lg-3">
-            <div class="card-custom gallery-card" style="overflow:hidden; border-radius:12px;">
-              <img src="${img.url}" alt="${img.alt}" class="card-img-top" style="height:200px; object-fit:cover;" loading="lazy">
-              <div class="card-body p-2 text-center">
-                <small class="text-muted">${img.type}</small>
-                <h6 class="mb-0 mt-1" style="font-size:0.85rem;">${img.alt}</h6>
-              </div>
+      galleryContainer.innerHTML = finalImages.map(img => `
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="card-custom gallery-card" style="overflow:hidden; border-radius:12px;">
+            <img src="${img.url}" alt="${img.alt}" class="card-img-top" style="height:200px; object-fit:cover;" loading="lazy">
+            <div class="card-body p-2 text-center">
+              <small class="text-muted">${img.type}</small>
+              <h6 class="mb-0 mt-1" style="font-size:0.85rem;">${img.alt}</h6>
             </div>
           </div>
-        `).join('');
-        if (noGallery) noGallery.classList.add('d-none');
-      } else {
-        galleryContainer.innerHTML = '';
-        if (noGallery) noGallery.classList.remove('d-none');
-      }
+        </div>
+      `).join('');
+      if (noGallery) noGallery.classList.add('d-none');
     } catch (err) {
-      console.error('Gallery load error:', err);
+      console.error('Gallery load error, using local images:', err);
       const spinner = galleryContainer.querySelector('.text-center');
       if (spinner) spinner.remove();
+      const loadingSpinner = galleryContainer.querySelector('.loading-spinner');
+      if (loadingSpinner) loadingSpinner.remove();
+
+      galleryContainer.innerHTML = localGalleryImages.map(img => `
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="card-custom gallery-card" style="overflow:hidden; border-radius:12px;">
+            <img src="${img.url}" alt="${img.alt}" class="card-img-top" style="height:200px; object-fit:cover;" loading="lazy">
+            <div class="card-body p-2 text-center">
+              <small class="text-muted">${img.type}</small>
+              <h6 class="mb-0 mt-1" style="font-size:0.85rem;">${img.alt}</h6>
+            </div>
+          </div>
+        </div>
+      `).join('');
       const noGallery = document.getElementById('noGalleryItems');
-      if (noGallery) noGallery.classList.remove('d-none');
+      if (noGallery) noGallery.classList.add('d-none');
     }
   }
 
