@@ -1,5 +1,5 @@
 from rest_framework import generics
-from .models import Services, Product, Order, Booking, Cart, CartItem, Payment
+from .models import Services, Product, Order, Booking, Cart, CartItem, Payment, OrderItem
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.db.models.functions import TruncDay, TruncMonth,TruncWeek
@@ -11,7 +11,7 @@ from .serializers import (
     ServicesSerializer,
     ProductSerializer,
     OrderSerializer,
-    OrderSerializer,
+    OrderItemSerializer,
     BookingSerializer,
     CartSerializer,
     CartItemSerializer
@@ -72,26 +72,35 @@ class BookingDetailView(generics.RetrieveAPIView):
 @api_view(['POST'])
 def create_order(request):
     try:
-        product_id = request.data.get('product')
-        quantity = int(request.data.get('quantity', 1))
+        items_data = request.data.get('items', [])
+        if not items_data:
+            return Response({"error": "No items provided"}, status=status.HTTP_400_BAD_REQUEST)
 
         with transaction.atomic():
-            product = Product.objects.select_for_update().get(id=product_id)
-
-            try:
-                product.reduce_stock(quantity)
-            except ValueError as e:
-                return Response(
-                    {"error": str(e)},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+            total_order_price = 0
+            order_items_to_create = []
             
-            total_price = product.price * quantity
+            for item in items_data:
+                product_id = item.get('product_id')
+                quantity = int(item.get('quantity', 1))
+
+                product = Product.objects.select_for_update().get(id=product_id)
+                if not product.has_stock(quantity):
+                    raise ValueError(f"Not enough stock for {product.name}")
+
+                product.reduce_stock(quantity)
+                
+                price_at_order = product.price
+                total_order_price += price_at_order * quantity
+                
+                order_items_to_create.append({
+                    'product': product,
+                    'quantity': quantity,
+                    'price_at_order': price_at_order
+                })
 
             order = Order.objects.create(
-                product=product,
-                quantity=quantity,
-                total_price=total_price,
+                total_price=total_order_price,
                 auto_part=request.data.get('auto_part'),
                 vehicle_model=request.data.get('vehicle_model'),
                 vehicle_make=request.data.get('vehicle_make'),
@@ -102,24 +111,24 @@ def create_order(request):
                 street_address=request.data.get('street_address')
             )
 
+            for item_data in order_items_to_create:
+                OrderItem.objects.create(
+                    order=order,
+                    product=item_data['product'],
+                    quantity=item_data['quantity'],
+                    price_at_order=item_data['price_at_order']
+                )
+
         return Response({
             "message": "Order created successfully",
             "order_id": order.id,
-            "remaining_stock": product.stock_quantity,
-            "total_price": total_price
+            "total_price": float(total_order_price)
         }, status=status.HTTP_201_CREATED)
 
     except Product.DoesNotExist:
-        return Response(
-            {"error": "Product not found"},
-            status=status.HTTP_404_NOT_FOUND
-        )
-
+        return Response({"error": "One or more products not found"}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
-        return Response(
-            {"error": str(e)},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     #calculating total price for booking
 
@@ -206,13 +215,10 @@ def cancel_order(request, order_id):
             order = Order.objects.select_for_update().get(id=order_id)
 
             if order.is_cancelled:
-                return Response(
-                    {"message": "Order already cancelled"},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+                return Response({"message": "Order already cancelled"}, status=status.HTTP_400_BAD_REQUEST)
 
-            product = order.product
-            product.restore_stock(order.quantity)
+            for item in order.items.all():
+                item.product.restore_stock(item.quantity)
 
             order.is_cancelled = True
             order.is_pending = False
@@ -222,15 +228,11 @@ def cancel_order(request, order_id):
 
         return Response({
             "message": "Order cancelled and stock restored",
-            "restored_quantity": order.quantity,
-            "current_stock": product.stock_quantity
+            "order_id": order.id
         }, status=status.HTTP_200_OK)
 
     except Order.DoesNotExist:
-        return Response(
-            {"error": "Order not found"},
-            status=status.HTTP_404_NOT_FOUND
-        )
+        return Response({"error": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
 
  # logic for booking cancellation
 @api_view(['POST'])

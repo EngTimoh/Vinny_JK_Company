@@ -3,7 +3,7 @@ from .views import cancel_order, cancel_booking
 from .views import (
     ServicesListCreateView, ServicesDetailView,
     ProductListCreateView, ProductDetailView,
-    OrderCreateView, OrderListView, OrderDetailView,
+    create_order, OrderListView, OrderDetailView,
     BookingCreateView, BookingListView, BookingDetailView,
     confirm_booking, complete_booking,
     bookings_summary, booking_revenue, daily_bookings, monthly_bookings, weekly_bookings,
@@ -22,7 +22,7 @@ urlpatterns = [
 
     # Orders
     path('orders/', OrderListView.as_view()),
-    path('orders/create/', OrderCreateView.as_view()),
+    path('orders/create/', create_order),
     path('orders/<int:pk>/cancel/', cancel_order),
     path('orders/<int:pk>/', OrderDetailView.as_view()),
 

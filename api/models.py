@@ -58,12 +58,10 @@ class Product(models.Model):
 
 
 class Order(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
-    quantity = models.IntegerField(blank=True, null=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    auto_part = models.CharField(max_length=255, blank=True, null=True)
+    auto_part = models.CharField(max_length=255, blank=True, null=True) # Keeping for general notes/ref
     vehicle_model = models.CharField(max_length=240, blank=True, null=True)
     vehicle_make = models.CharField(max_length=20, blank=True, null=True)
     vehicle_year = models.CharField(max_length=20, blank=True, null=True)
@@ -78,6 +76,18 @@ class Order(models.Model):
     is_pending = models.BooleanField(default=True)
     is_out_for_delivery = models.BooleanField(default=False)
     is_restored = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return f"Order #{self.id} - {self.full_name}"
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    price_at_order = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.quantity} x {self.product.name} (Order #{self.order.id})"
     
     
 

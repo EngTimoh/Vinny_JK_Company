@@ -414,16 +414,17 @@ document.addEventListener('click', async function (e) {
     submitBtn.disabled = true;
     submitBtn.textContent = 'Processing...';
 
-    const cartSummary = CartManager.items.map(i => `${i.name} (${i.quantity})`).join(', ');
     const orderData = {
-      product: CartManager.items[0].id,
-      quantity: CartManager.items[0].quantity,
+      items: CartManager.items.map(item => ({
+        product_id: item.id,
+        quantity: item.quantity
+      })),
       total_price: CartManager.getTotal(),
       full_name: document.getElementById('orderName').value,
       phone_number: document.getElementById('orderPhone').value,
       estate: document.getElementById('orderEstate').value,
       street_address: document.getElementById('orderStreet').value,
-      auto_part: `Cart Order: ${cartSummary}`,
+      auto_part: `Cart Order (Multi-item)`,
       payment_method: selectedPaymentMethod === 'online' ? 'M-Pesa' : 'Delivery'
     };
 

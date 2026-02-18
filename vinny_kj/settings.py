@@ -10,7 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,10 +25,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-t4jo!zytr1jzd9zng+%_d0f-h(oe-h%8_dcbg4ry4z0hfb714f'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key-for-dev-only')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = []
 
@@ -126,13 +131,13 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Payment Configuration
 
 # DARAJA (M-Pesa)
-DARAJA_CONSUMER_KEY = '7EDurCQKPApGG2J733Js5E4tDF7dfKJXPgphrYZwEvO6V4Zh'
-DARAJA_CONSUMER_SECRET = 'yQnwwx7BRGZJadgB3YhhEJAy3gVFHRAyD2P8EBEn3r7ZfTxai0k4qNBD4E5ngYim'
-DARAJA_PASSKEY = 'T@n!@Tim#2024' 
-DARAJA_BUSINESS_SHORTCODE = '0115709680' # Ensure it is the Paybill/Till number.
-DARAJA_BASE_URL = 'https://sandbox.safaricom.co.ke' # Use sandbox for testing
-DARAJA_CALLBACK_URL = 'https://mydomain.com/api/payment/mpesa/callback/' # Replace with real domain in production
+DARAJA_CONSUMER_KEY = os.getenv('DARAJA_CONSUMER_KEY')
+DARAJA_CONSUMER_SECRET = os.getenv('DARAJA_CONSUMER_SECRET')
+DARAJA_PASSKEY = os.getenv('DARAJA_PASSKEY')
+DARAJA_BUSINESS_SHORTCODE = os.getenv('DARAJA_BUSINESS_SHORTCODE')
+DARAJA_BASE_URL = os.getenv('DARAJA_BASE_URL', 'https://sandbox.safaricom.co.ke')
+DARAJA_CALLBACK_URL = os.getenv('DARAJA_CALLBACK_URL')
 
 # STRIPE
-STRIPE_SECRET_KEY = 'sk_test_placeholder'
-STRIPE_PUBLISHABLE_KEY = 'pk_test_placeholder'
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', 'sk_test_placeholder')
+STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY', 'pk_test_placeholder')

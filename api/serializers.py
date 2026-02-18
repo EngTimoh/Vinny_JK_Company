@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from .models import Services, Product, Order, Booking, Category, Cart, CartItem
+from .models import Services, Product, Order, Booking, Category, Cart, CartItem, OrderItem
 
 
 class ServicesSerializer(serializers.ModelSerializer):
@@ -25,10 +25,27 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class OrderItemSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+    product_id = serializers.PrimaryKeyRelatedField(
+        queryset=Product.objects.all(), source='product', write_only=True
+    )
+    class Meta:
+        model = OrderItem
+        fields = ['id', 'product', 'product_id', 'quantity', 'price_at_order']
+
 class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True, read_only=True)
     class Meta:
         model = Order
-        fields = '__all__'
+        fields = [
+            'id', 'items', 'total_price', 'created_at', 'updated_at', 'auto_part',
+            'vehicle_model', 'vehicle_make', 'vehicle_year', 'full_name',
+            'phone_number', 'estate', 'street_address', 'is_delivered',
+            'is_paid', 'is_cancelled', 'is_completed', 'is_pending',
+            'is_out_for_delivery', 'is_restored'
+        ]
+        read_only_fields = ['total_price']
 
 
 class BookingSerializer(serializers.ModelSerializer):
