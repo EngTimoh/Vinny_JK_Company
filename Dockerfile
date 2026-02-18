@@ -1,5 +1,5 @@
-# Use Python 3.11 for the backend
-FROM python:3.11-slim
+# Use Python 3.12 for the backend (required by Django 6.0.1)
+FROM python:3.12-slim
 
 # Install Nginx and other dependencies
 RUN apt-get update && apt-get install -y \
