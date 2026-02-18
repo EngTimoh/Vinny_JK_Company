@@ -1,5 +1,5 @@
 from rest_framework import generics
-from .models import Services, Product, Order, Booking, Cart, CartItem, Payment, OrderItem
+from .models import Services, Product, Order, Booking, Cart, CartItem, Payment, OrderItem, Gallery
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.db.models.functions import TruncDay, TruncMonth,TruncWeek
@@ -14,7 +14,9 @@ from .serializers import (
     OrderItemSerializer,
     BookingSerializer,
     CartSerializer,
-    CartItemSerializer
+    CartSerializer,
+    CartItemSerializer,
+    GallerySerializer
 )
 from django.db import transaction
 from django.shortcuts import get_object_or_404
@@ -38,6 +40,14 @@ class ProductListCreateView(generics.ListCreateAPIView):
 class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+
+class GalleryListCreateView(generics.ListCreateAPIView):
+    queryset = Gallery.objects.all()
+    serializer_class = GallerySerializer
+
+class GalleryDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Gallery.objects.all()
+    serializer_class = GallerySerializer
 
 class OrderCreateView(generics.CreateAPIView):
     queryset = Order.objects.all()

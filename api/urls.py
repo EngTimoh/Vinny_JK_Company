@@ -8,7 +8,8 @@ from .views import (
     confirm_booking, complete_booking,
     bookings_summary, booking_revenue, daily_bookings, monthly_bookings, weekly_bookings,
     CartCreateView, CartDetailView, add_to_cart, UpdateCartItemView,
-    initiate_mpesa_payment, mpesa_callback, initiate_stripe_payment
+    initiate_mpesa_payment, mpesa_callback, initiate_stripe_payment,
+    GalleryListCreateView, GalleryDetailView
 )
 
 urlpatterns = [
@@ -50,4 +51,8 @@ urlpatterns = [
     path('payment/mpesa/initiate/<int:order_id>/', initiate_mpesa_payment, name='initiate-mpesa'),
     path('payment/mpesa/callback/', mpesa_callback, name='mpesa-callback'),
     path('payment/stripe/initiate/<int:order_id>/', initiate_stripe_payment, name='initiate-stripe'),
+    
+    # Gallery
+    path('gallery/', GalleryListCreateView.as_view(), name='gallery-list'),
+    path('gallery/<int:pk>/', GalleryDetailView.as_view(), name='gallery-detail'),
 ]

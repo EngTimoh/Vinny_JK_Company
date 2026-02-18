@@ -4,7 +4,7 @@
    ============================================ */
 
 // ---- Configuration ----
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'http://127.0.0.1:8001/api';
 
 // ---- Mobile Nav Dropdown Toggle ----
 function toggleMobileNav() {
@@ -116,7 +116,7 @@ const CartManager = {
     this.updateUI();
   },
 
-  add(product) {
+  add(product, btn) {
     const existing = this.items.find(item => item.id === product.id);
     if (existing) {
       if (existing.quantity < product.stock) {
@@ -137,6 +137,20 @@ const CartManager = {
     }
     this.save();
     this.showFloatingBadgeAnimation();
+
+    // Visual feedback for the button
+    if (btn) {
+      const originalHtml = btn.innerHTML;
+      btn.innerHTML = `<span class="material-icons" style="font-size: 1.2rem;">check_circle</span> Added!`;
+      btn.classList.replace('btn-primary-custom', 'btn-success');
+      btn.disabled = true;
+
+      setTimeout(() => {
+        btn.innerHTML = originalHtml;
+        btn.classList.replace('btn-success', 'btn-primary-custom');
+        btn.disabled = false;
+      }, 1500);
+    }
   },
 
   remove(id) {
@@ -255,7 +269,7 @@ function renderProductCard(product, isPreview) {
 
   const buttonHtml = inStock
     ? `<button class="btn btn-primary-custom w-100 d-flex align-items-center justify-content-center gap-2" 
-               onclick="CartManager.add({id: ${product.id}, name: '${product.name.replace(/'/g, "\\'")}', price: ${product.price}, image: '${product.image}', stock: ${product.stock_quantity}})">
+               onclick="CartManager.add({id: ${product.id}, name: '${product.name.replace(/'/g, "\\'")}', price: ${product.price}, image: '${product.image}', stock: ${product.stock_quantity}}, this)">
           <span class="material-icons" style="font-size: 1.2rem;">add_shopping_cart</span> Add to Cart
        </button>`
     : `<button class="btn btn-dark-custom w-100" disabled>Out of Stock</button>`;
@@ -278,9 +292,42 @@ function renderProductCard(product, isPreview) {
   `;
 }
 
+async function fetchGallery() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/gallery/`, { signal: AbortSignal.timeout(5000) });
+    if (!response.ok) throw new Error('Failed to fetch gallery');
+    return await response.json();
+  } catch (error) {
+    console.warn('Error fetching gallery:', error);
+    return null;
+  }
+}
+
+async function loadGallery() {
+  const container = document.getElementById('galleryContainer');
+  if (!container) return;
+
+  const galleryItems = await fetchGallery();
+
+  if (galleryItems && galleryItems.length > 0) {
+    // Replace hardcoded items with dynamic ones
+    container.innerHTML = galleryItems.map(item => `
+      <div class="col-6 col-md-4 col-lg-3">
+        <div class="gallery-preview-item">
+          <img src="${getImageUrl(item.image)}" alt="${item.title || 'Gallery Item'}" loading="lazy" onerror="this.src='https://via.placeholder.com/400x300?text=Work'">
+          <div class="gallery-overlay"><span>${item.category || item.title || 'Our Work'}</span></div>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
 // ---- Initialization ----
 document.addEventListener('DOMContentLoaded', async () => {
   CartManager.updateUI();
+
+  // Load dynamic gallery if available
+  loadGallery().catch(err => console.error('Gallery loading failed:', err));
 
   const checkoutBtn = document.getElementById('checkoutBtn');
   if (checkoutBtn) {
@@ -295,22 +342,54 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Load Products
   const productsContainer = document.getElementById('productsContainer');
   const productsPreview = document.getElementById('productsPreviewContainer');
+  const noProducts = document.getElementById('noProductsFound');
+
   if (productsContainer || productsPreview) {
     const products = await fetchProducts();
-    if (products) {
-      if (productsContainer) productsContainer.innerHTML = products.map(p => renderProductCard(p, false)).join('');
-      if (productsPreview) productsPreview.innerHTML = products.filter(p => p.is_available).slice(0, 3).map(p => renderProductCard(p, true)).join('');
+
+    // Hide spinner by clearing container
+    if (productsContainer) productsContainer.innerHTML = '';
+    if (productsPreview) productsPreview.innerHTML = '';
+
+    if (products && products.length > 0) {
+      if (productsContainer) {
+        productsContainer.innerHTML = products.map(p => renderProductCard(p, false)).join('');
+      }
+      if (productsPreview) {
+        productsPreview.innerHTML = products.filter(p => p.is_available).slice(0, 3).map(p => renderProductCard(p, true)).join('');
+      }
+      if (noProducts) noProducts.classList.add('d-none');
+    } else {
+      // Show empty state if on products page
+      if (noProducts) noProducts.classList.remove('d-none');
+      // On index page, maybe show a simple message in preview
+      if (productsPreview) productsPreview.innerHTML = '<p class="text-center opacity-50">New products coming soon!</p>';
     }
   }
 
   // Load Services
   const servicesContainer = document.getElementById('servicesContainer');
   const servicesPreview = document.getElementById('servicesPreviewContainer');
+  const noServices = document.getElementById('noServicesFound');
+
   if (servicesContainer || servicesPreview) {
     const services = await fetchServices();
-    if (services) {
-      if (servicesContainer) servicesContainer.innerHTML = services.map(s => renderServiceCard(s, false)).join('');
-      if (servicesPreview) servicesPreview.innerHTML = services.slice(0, 3).map(s => renderServiceCard(s, true)).join('');
+
+    // Hide spinner
+    if (servicesContainer) servicesContainer.innerHTML = '';
+    if (servicesPreview) servicesPreview.innerHTML = '';
+
+    if (services && services.length > 0) {
+      if (servicesContainer) {
+        servicesContainer.innerHTML = services.map(s => renderServiceCard(s, false)).join('');
+      }
+      if (servicesPreview) {
+        servicesPreview.innerHTML = services.slice(0, 3).map(s => renderServiceCard(s, true)).join('');
+      }
+      if (noServices) noServices.classList.add('d-none');
+    } else {
+      if (noServices) noServices.classList.remove('d-none');
+      if (servicesPreview) servicesPreview.innerHTML = '<p class="text-center opacity-50">Our services are being updated. Check back soon!</p>';
     }
   }
 
@@ -318,10 +397,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   const bookingForm = document.getElementById('bookingForm');
   if (bookingForm) {
     const bookingServiceSelect = document.getElementById('bookingService');
-    const services = await fetchServices();
-    if (services && bookingServiceSelect) {
-      bookingServiceSelect.innerHTML = '<option value="" disabled selected>-- Select a Service --</option>' +
-        services.map(s => `<option value="${s.id}" data-price="${s.price}">${s.name} - ${formatPrice(s.price)}</option>`).join('');
+    if (bookingServiceSelect) {
+      const services = await fetchServices();
+      if (services && services.length > 0) {
+        bookingServiceSelect.innerHTML = '<option value="" disabled selected>-- Select a Service --</option>' +
+          services.map(s => `<option value="${s.id}" data-price="${s.price}">${s.name} - ${formatPrice(s.price)}</option>`).join('');
+      } else {
+        bookingServiceSelect.innerHTML = '<option value="" disabled selected>No services available at currently</option>';
+      }
 
       const savedId = sessionStorage.getItem('selectedServiceId');
       if (savedId) {

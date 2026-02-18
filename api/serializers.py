@@ -1,6 +1,12 @@
 
 from rest_framework import serializers
-from .models import Services, Product, Order, Booking, Category, Cart, CartItem, OrderItem
+from .models import Services, Product, Order, Booking, Category, Cart, CartItem, OrderItem, Gallery
+
+
+class GallerySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Gallery
+        fields = '__all__'
 
 
 class ServicesSerializer(serializers.ModelSerializer):

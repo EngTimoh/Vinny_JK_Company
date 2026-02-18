@@ -161,3 +161,16 @@ class Payment(models.Model):
         return f"{self.payment_method} - {self.amount} - {self.status}"
 
 
+class Gallery(models.Model):
+    title = models.CharField(max_length=255, blank=True, null=True)
+    image = models.ImageField(upload_to='gallery/')
+    category = models.CharField(max_length=100, blank=True, null=True, help_text="e.g. Tinting, Wrapping, PPF")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "Gallery Items"
+
+    def __str__(self):
+        return self.title or f"Gallery Item {self.id}"
+
+
