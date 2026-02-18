@@ -33,6 +33,9 @@ RUN python manage.py collectstatic --noinput
 # Create a startup script to run migrations, setup permissions, Nginx, and Gunicorn
 RUN echo "#!/bin/bash\n\
 python manage.py migrate --noinput\n\
+if [ \"\$DJANGO_SUPERUSER_USERNAME\" ]; then\n\
+    python manage.py createsuperuser --noinput || true\n\
+fi\n\
 mkdir -p /app/media\n\
 chmod -R 777 /app/media /app/db.sqlite3 || true\n\
 nginx -g 'daemon off;' &\n\
