@@ -30,8 +30,12 @@ ENV PYTHONUNBUFFERED=1
 ENV DEBUG=False
 RUN python manage.py collectstatic --noinput
 
-# Create a startup script to run both Nginx and Gunicorn
+# Ensure the database and media folder are writable
+RUN chmod -R 777 /app/media /app/db.sqlite3 || true
+
+# Create a startup script to run migrations, Nginx, and Gunicorn
 RUN echo "#!/bin/bash\n\
+python manage.py migrate --noinput\n\
 nginx -g 'daemon off;' &\n\
 gunicorn vinny_kj.wsgi:application --bind 127.0.0.1:8000 --workers 3\n\
 " > /app/start.sh
