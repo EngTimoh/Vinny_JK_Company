@@ -19,4 +19,9 @@ admin.site.register(Services)
 admin.site.register(Category)
 admin.site.register(Product)
 admin.site.register(Order, OrderAdmin)
-admin.site.register(Booking)
+class BookingAdmin(admin.ModelAdmin):
+    list_display = ('id', 'full_name', 'services', 'booking_date', 'booking_time', 'status', 'total_price', 'created_at')
+    list_filter = ('status', 'booking_date', 'services')
+    search_fields = ('full_name', 'phone_number', 'vehicle_model', 'number_plate')
+
+admin.site.register(Booking, BookingAdmin)
