@@ -112,11 +112,20 @@ class SMSClient:
             phone_number = '+' + phone_number
 
         try:
+            logger.info(f"Attempting to send SMS to {phone_number} via Africa's Talking")
             response = self.sms.send(message, [phone_number])
-            logger.info(f"SMS Response: {response}")
+            logger.info(f"Africa's Talking Response: {response}")
+            
+            # Check for specific failure in response
+            if response and 'SMSMessageData' in response:
+                recipients = response['SMSMessageData'].get('Recipients', [])
+                for recipient in recipients:
+                    if recipient.get('status') != 'Success':
+                        logger.error(f"SMS failed for {recipient.get('number')}: {recipient.get('status')}")
+            
             return response
         except Exception as e:
-            logger.error(f"Error sending SMS: {e}")
+            logger.error(f"CRITICAL Error sending SMS: {str(e)}")
             return None
 
 def send_notification_sms(phone_number, message):
