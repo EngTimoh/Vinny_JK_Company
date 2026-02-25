@@ -95,6 +95,8 @@ class SMSClient:
     def __init__(self):
         self.username = settings.AT_USERNAME
         self.api_key = settings.AT_API_KEY
+        self.sender_id = getattr(settings, 'AT_SENDER_ID', None)
+        self.shortcode = getattr(settings, 'AT_SHORTCODE', None)
         africastalking.initialize(self.username, self.api_key)
         self.sms = africastalking.SMS
 
@@ -112,7 +114,15 @@ class SMSClient:
             phone_number = '+' + phone_number
 
         try:
-            response = self.sms.send(message, [phone_number])
+            # Prefer shortcode if available, otherwise try Sender ID
+            # In AfricasTalking python SDK, 'from_' parameter is used for shortcodes/sender_ids
+            from_id = self.shortcode if (self.shortcode and self.shortcode.upper() != 'NONE') else self.sender_id
+            
+            if from_id and from_id.upper() != 'NONE':
+                response = self.sms.send(message, [phone_number], sender_id=from_id)
+            else:
+                response = self.sms.send(message, [phone_number])
+                
             logger.info(f"SMS Response: {response}")
             return response
         except Exception as e:

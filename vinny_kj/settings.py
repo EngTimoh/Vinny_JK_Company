@@ -162,6 +162,8 @@ STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY', 'pk_test_placeholde
 # AFRICA'S TALKING (SMS)
 AT_USERNAME = os.getenv('AT_USERNAME', 'sandbox')
 AT_API_KEY = os.getenv('AT_API_KEY', 'your_sandbox_api_key_here')
+AT_SENDER_ID = os.getenv('AT_SENDER_ID', 'VINKJ')
+AT_SHORTCODE = os.getenv('AT_SHORTCODE', '58580')
 # CORS
 CORS_ALLOW_ALL_ORIGINS = True # For testing, can be restricted later
 
