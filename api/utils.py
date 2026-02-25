@@ -8,6 +8,7 @@ import stripe
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 import logging
+import africastalking
 
 logger = logging.getLogger(__name__)
 
@@ -89,6 +90,44 @@ class MpesaClient:
             if hasattr(e, 'response') and e.response is not None:
                 logger.error(f"Response content: {e.response.text}")
             return None
+
+class SMSClient:
+    def __init__(self):
+        self.username = settings.AT_USERNAME
+        self.api_key = settings.AT_API_KEY
+        africastalking.initialize(self.username, self.api_key)
+        self.sms = africastalking.SMS
+
+    def send_sms(self, phone_number, message):
+        # Ensure phone number is in international format
+        phone_number = str(phone_number).strip().replace('+', '').replace(' ', '')
+        if phone_number.startswith('0'):
+            phone_number = '254' + phone_number[1:]
+        
+        if not phone_number.startswith('254'):
+            # Default to 254 if not provided, assuming local numbers
+            phone_number = '254' + phone_number
+            
+        if not phone_number.startswith('+'):
+            phone_number = '+' + phone_number
+
+        try:
+            response = self.sms.send(message, [phone_number])
+            logger.info(f"SMS Response: {response}")
+            return response
+        except Exception as e:
+            logger.error(f"Error sending SMS: {e}")
+            return None
+
+def send_notification_sms(phone_number, message):
+    """ Helper function to send SMS notifications """
+    if not phone_number:
+        logger.warning("No phone number provided for SMS notification")
+        return None
+    
+    client = SMSClient()
+    return client.send_sms(phone_number, message)
+
 
 def create_stripe_payment_intent(amount, currency='usd'):
     try:

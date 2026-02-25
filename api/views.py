@@ -21,7 +21,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .utils import MpesaClient, create_stripe_payment_intent
+from .utils import MpesaClient, create_stripe_payment_intent, send_notification_sms
 import json
 import logging
 
@@ -140,6 +140,10 @@ def create_order(request):
                 if payment_method == 'Delivery':
                     item_data['product'].reduce_stock(item_data['quantity'])
 
+        # Send SMS Notification
+        sms_message = f"Hello {order.full_name}, your order #{order.id} has been received. Total: KES {total_order_price}. Thank you for shopping with Vinny KJ!"
+        send_notification_sms(order.phone_number, sms_message)
+
         return Response({
             "message": "Order created successfully",
             "order_id": order.id,
@@ -206,6 +210,10 @@ def create_booking(request):
             number_plate=request.data.get('number_plate'),
             additional_notes=request.data.get('additional_notes')
         )
+
+        # Send SMS Notification
+        sms_message = f"Hello {booking.full_name}, your booking for {services.name} on {booking.booking_date} at {booking.booking_time} has been received. Thank you for choosing Vinny KJ!"
+        send_notification_sms(booking.phone_number, sms_message)
 
         return Response({
             "message": "Booking created successfully",
