@@ -102,7 +102,7 @@ def create_order(request):
                 if not product.has_stock(quantity):
                     raise ValueError(f"Not enough stock for {product.name}")
 
-                product.reduce_stock(quantity)
+                # Note: Stock deduction moved to mpesa_callback / successful payment handler
                 
                 price_at_order = product.price
                 total_order_price += price_at_order * quantity
@@ -125,6 +125,8 @@ def create_order(request):
                 street_address=request.data.get('street_address')
             )
 
+            payment_method = request.data.get('payment_method', 'M-Pesa')
+            
             for item_data in order_items_to_create:
                 OrderItem.objects.create(
                     order=order,
@@ -132,6 +134,11 @@ def create_order(request):
                     quantity=item_data['quantity'],
                     price_at_order=item_data['price_at_order']
                 )
+                
+                # If it's Payment on Delivery, deduct stock immediately 
+                # because there won't be an automated M-Pesa webhook to do it later.
+                if payment_method == 'Delivery':
+                    item_data['product'].reduce_stock(item_data['quantity'])
 
         return Response({
             "message": "Order created successfully",
@@ -509,12 +516,14 @@ def initiate_mpesa_payment(request, order_id):
     if not phone_number:
         return Response({"error": "Phone number is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Convert phone number to format 254...
-    phone_number = str(phone_number).strip().replace('+', '')
+    # Convert phone number to Safaricom Daraja format: 2547XXXXXXXX or 2541XXXXXXXX
+    phone_number = str(phone_number).strip().replace('+', '').replace(' ', '')
     if phone_number.startswith('0'):
         phone_number = '254' + phone_number[1:]
-    elif not phone_number.startswith('254'):
-        return Response({"error": "Invalid phone number format. Use 2547XXXXXXXX or 07XXXXXXXX"}, status=status.HTTP_400_BAD_REQUEST)
+    elif len(phone_number) == 9 and (phone_number.startswith('7') or phone_number.startswith('1')):
+        phone_number = '254' + phone_number
+    elif not phone_number.startswith('254') or len(phone_number) != 12:
+        return Response({"error": "Invalid phone number format. Use 07XXXXXXXX, 01XXXXXXXX, or 2547XXXXXXXX"}, status=status.HTTP_400_BAD_REQUEST)
     
     try:
         with transaction.atomic():
@@ -555,7 +564,7 @@ def initiate_mpesa_payment(request, order_id):
 
     except Exception as e:
         logger.error(f"Unexpected error in initiate_mpesa_payment: {e}")
-        return Response({"error": "Internal Server Error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": f"Internal Server Error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @csrf_exempt
 @api_view(['POST'])
@@ -590,15 +599,26 @@ def mpesa_callback(request):
                 name = item.get('Name')
                 value = item.get('Value')
                 if name == 'MpesaReceiptNumber':
-                    payment.mpesa_receipt_number = value
+                    receipt_number = value
+                    print(f"M-Pesa Receipt Number: {receipt_number}")
+                    payment.mpesa_receipt_number = receipt_number
                 elif name == 'Amount':
                     # Optional: verify amount matches
                     pass
             
             payment.save()
             
-            # Update order status
+            # Update order status and deduct stock
             order = payment.order
+            
+            # Deduct stock ONLY when genuinely paid
+            if not order.is_paid:
+                for order_item in order.items.all():
+                    if order_item.product.has_stock(order_item.quantity):
+                        order_item.product.reduce_stock(order_item.quantity)
+                    else:
+                        logger.warning(f"Stock shortage for product {order_item.product.name} during late M-Pesa payment.")
+
             order.is_paid = True
             order.is_pending = False
             order.save()
