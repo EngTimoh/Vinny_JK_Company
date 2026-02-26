@@ -615,12 +615,54 @@ document.addEventListener('click', async function (e) {
       if (selectedPaymentMethod === 'online') {
         const stkPrompt = document.getElementById('stkPrompt');
         if (stkPrompt) stkPrompt.classList.remove('d-none');
+
+        // Initiate STK Push
         await fetch(`${API_BASE_URL}/payment/mpesa/initiate/${order.order_id}/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ phone_number: orderData.phone_number })
         });
-        showAlert('orderSuccess', 'STK Push sent! Check your phone.', 10000);
+
+        showAlert('orderSuccess', 'STK Push sent! Please enter your PIN on your phone (waiting up to 30s)...', 10000);
+
+        // Polling logic: check order status every 5 seconds for a max of 30 seconds (6 attempts)
+        let isPaid = false;
+        let attempts = 0;
+        const maxAttempts = 6;
+
+        while (attempts < maxAttempts && !isPaid) {
+          await new Promise(resolve => setTimeout(resolve, 5000)); // wait 5 seconds
+          attempts++;
+
+          try {
+            const checkRes = await fetch(`${API_BASE_URL}/orders/${order.order_id}/`);
+            if (checkRes.ok) {
+              const checkData = await checkRes.json();
+              if (checkData.is_paid) {
+                isPaid = true;
+              }
+            }
+          } catch (e) {
+            console.warn('Order poll error:', e);
+          }
+        }
+
+        if (stkPrompt) stkPrompt.classList.add('d-none');
+
+        if (isPaid) {
+          showAlert('orderSuccess', 'Payment Successful!', 8000);
+          order.is_paid = true; // inject for receipt generation
+        } else {
+          showAlert('orderError', 'Payment confirmation timed out. If you paid, it will reflect shortly.', 8000);
+        }
+
+        generateReceipt('order', orderData, order);
+        CartManager.clear();
+        setTimeout(() => {
+          const modal = bootstrap.Modal.getInstance(document.getElementById('orderModal'));
+          if (modal) modal.hide();
+        }, 5000);
+
       } else {
         showAlert('orderSuccess', 'Order placed!', 8000);
         generateReceipt('order', orderData, order);
@@ -632,6 +674,8 @@ document.addEventListener('click', async function (e) {
       }
     } catch (err) {
       showAlert('orderError', err.message, 6000);
+      const stkPrompt = document.getElementById('stkPrompt');
+      if (stkPrompt) stkPrompt.classList.add('d-none');
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = 'Confirm Order';
@@ -737,8 +781,13 @@ window.generateReceipt = function (type, payload, response) {
       document.getElementById('receiptStatus').textContent = 'Confirmed (Pay on Delivery)';
       document.getElementById('receiptStatus').style.color = '#28a745';
     } else {
-      document.getElementById('receiptStatus').textContent = 'Pending M-Pesa Payment';
-      document.getElementById('receiptStatus').style.color = '#dc3545';
+      if (response.is_paid) {
+        document.getElementById('receiptStatus').textContent = 'Paid via M-Pesa';
+        document.getElementById('receiptStatus').style.color = '#28a745';
+      } else {
+        document.getElementById('receiptStatus').textContent = 'Pending M-Pesa Payment';
+        document.getElementById('receiptStatus').style.color = '#dc3545';
+      }
     }
 
     payload.items.forEach(item => {
@@ -795,14 +844,22 @@ window.downloadReceipt = function () {
       useCORS: true,
       logging: false,
       letterRendering: true,
+      windowWidth: 800,
       onclone: (clonedDoc) => {
-        // Ensure the cloned receipt is styled properly regardless of modal context
         const el = clonedDoc.getElementById('receiptContent');
         if (el) {
+          // Force layout sizes
           el.style.width = '800px';
           el.style.padding = '40px';
           el.style.background = 'white';
           el.style.margin = '0 auto';
+          el.style.position = 'relative';
+          el.style.height = 'auto';
+          el.style.display = 'block';
+
+          // Move the receipt directly to the body, discarding the modal wrapper constraints
+          clonedDoc.body.innerHTML = '';
+          clonedDoc.body.appendChild(el);
         }
       }
     },

@@ -4,7 +4,7 @@ from .views import (
     ServicesListCreateView, ServicesDetailView,
     ProductListCreateView, ProductDetailView,
     create_order, OrderListView, OrderDetailView,
-    BookingCreateView, BookingListView, BookingDetailView,
+    BookingCreateView, BookingListView, BookingDetailView, create_booking,
     confirm_booking, complete_booking,
     bookings_summary, booking_revenue, daily_bookings, monthly_bookings, weekly_bookings,
     CartCreateView, CartDetailView, add_to_cart, UpdateCartItemView,
@@ -29,7 +29,7 @@ urlpatterns = [
 
     # Bookings
     path('bookings/', BookingListView.as_view()),
-    path('bookings/create/', BookingCreateView.as_view()),
+    path('bookings/create/', create_booking),
     path('bookings/<int:pk>/confirm/', confirm_booking),
     path('bookings/<int:pk>/complete/', complete_booking),
     path('bookings/<int:pk>/cancel/', cancel_booking),
