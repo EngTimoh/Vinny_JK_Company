@@ -793,16 +793,17 @@ window.downloadReceipt = function () {
   container.style.position = 'absolute';
   container.style.left = '-9999px';
   container.style.top = '0';
-  container.style.width = '800px'; // Give it a fixed width for consistent rendering
+  container.style.width = '900px'; // Widened to prevent right-side cutoff
+  container.style.padding = '20px'; // Give inner content breathing room
   container.style.background = 'white';
   container.appendChild(clone);
   document.body.appendChild(container);
 
   const opt = {
-    margin: [0.5, 0.5, 0.5, 0.5],
+    margin: [0.3, 0.3, 0.3, 0.3], // Reduced margins slightly
     filename: 'VIN-KJ_Receipt.pdf',
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, windowWidth: 800 },
+    html2canvas: { scale: 2, useCORS: true, windowWidth: 900 },
     jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
   };
 
