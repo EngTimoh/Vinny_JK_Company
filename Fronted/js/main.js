@@ -832,43 +832,45 @@ window.generateReceipt = function (type, payload, response) {
 };
 
 window.downloadReceipt = function () {
-  const originalElement = document.getElementById('receiptContent');
-  if (!originalElement) return;
+  const receiptElement = document.getElementById('receiptContent');
+  if (!receiptElement) return;
 
-  const opt = {
-    margin: [0.4, 0.4, 0.4, 0.4],
-    filename: 'VIN-KJ_Receipt.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      letterRendering: true,
-      windowWidth: 800,
-      onclone: (clonedDoc) => {
-        const el = clonedDoc.getElementById('receiptContent');
-        if (el) {
-          // Force layout sizes
-          el.style.width = '800px';
-          el.style.padding = '40px';
-          el.style.background = 'white';
-          el.style.margin = '0 auto';
-          el.style.position = 'relative';
-          el.style.height = 'auto';
-          el.style.display = 'block';
+  // Extract the HTML content we want to print
+  const content = receiptElement.innerHTML;
 
-          // Move the receipt directly to the body, discarding the modal wrapper constraints
-          clonedDoc.body.innerHTML = '';
-          clonedDoc.body.appendChild(el);
-        }
-      }
-    },
-    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-  };
+  // Create a hidden iframe
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'absolute';
+  iframe.style.width = '0px';
+  iframe.style.height = '0px';
+  iframe.style.border = 'none';
+  document.body.appendChild(iframe);
 
-  html2pdf().set(opt).from(originalElement).save().catch(err => {
-    console.error('PDF Generation Error:', err);
-  });
+  const doc = iframe.contentWindow.document;
+
+  // Write the receipt content into the iframe with basic styling
+  doc.open();
+  doc.write('<html><head><title>VIN-KJ Receipt</title>');
+  doc.write('<style>');
+  doc.write('body { font-family: sans-serif; padding: 20px; color: #000; }');
+  doc.write('table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }');
+  doc.write('th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }');
+  doc.write('h2, h5, h6, p { margin-top: 0; }');
+  doc.write('</style>');
+  doc.write('</head><body>');
+  doc.write(content);
+  doc.write('</body></html>');
+  doc.close();
+
+  // Trigger print (which allows "Save to PDF") after fonts/styles load
+  iframe.contentWindow.focus();
+  setTimeout(() => {
+    iframe.contentWindow.print();
+    // Clean up
+    setTimeout(() => {
+      document.body.removeChild(iframe);
+    }, 1000);
+  }, 250);
 };
 
 // Navbar scroll effect
