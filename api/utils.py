@@ -102,7 +102,7 @@ def send_receipt_email(to_email, subject, message_body):
     try:
         html_message = f'<div style="font-family: Arial, sans-serif; padding: 20px;"><h3>VINNY KJ</h3><p>{message_body}</p></div>'
         plain_message = strip_tags(html_message)
-        from_email = getattr(settings, 'EMAIL_HOST_USER', 'noreply@vinkj.com')
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', getattr(settings, 'EMAIL_HOST_USER', 'noreply@vinkj.com'))
         
         send_mail(
             subject=subject,

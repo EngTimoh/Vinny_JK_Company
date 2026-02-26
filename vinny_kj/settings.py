@@ -173,6 +173,7 @@ if EMAIL_PORT == 465:
 
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'your_email@gmail.com')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', 'your_app_password')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'VIN-KJ Auto Services <echowithin@echowithin.xyz>')
 EMAIL_TIMEOUT = 5 # Don't block requests indefinitely if email is unreachable
 # CORS
 CORS_ALLOW_ALL_ORIGINS = True # For testing, can be restricted later
