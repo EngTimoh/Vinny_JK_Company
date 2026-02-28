@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Bookings | Admin Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .table-container {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px;
+            color: var(--text-muted);
+            border-bottom: 2px solid #f4f7fe;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f4f7fe;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: rgba(255, 193, 7, 0.1);
+            color: #856404;
+        }
+
+        .status-confirmed {
+            background: rgba(23, 162, 184, 0.1);
+            color: #0c5460;
+        }
+
+        .status-completed {
+            background: rgba(40, 167, 69, 0.1);
+            color: #155724;
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-right: 5px;
+        }
+
+        .btn-confirm {
+            background: var(--info);
+            color: white;
+        }
+
+        .btn-complete {
+            background: var(--success);
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="logo-section">
+            <h2>VINNY KJ</h2>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="manage-orders.html"><i class="fas fa-shopping-cart"></i> Manage Orders</a></li>
+            <li><a href="manage-bookings.html" class="active"><i class="fas fa-calendar-alt"></i> Manage Bookings</a>
+            </li>
+            <li><a href="manage-products.html"><i class="fas fa-box"></i> Stock Management</a></li>
+            <li><a href="../index.html"><i class="fas fa-external-link-alt"></i> View Website</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <header>
+            <div class="welcome-msg">
+                <h1>Manage Bookings</h1>
+                <p>Handle service appointments and scheduling.</p>
+            </div>
+        </header>
+
+        <div class="table-container">
+            <div class="chart-header">
+                <h2>Upcoming Bookings</h2>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Service</th>
+                        <th>Date & Time</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="bookingsTableBody">
+                    <!-- Data loaded via JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', fetchBookings);
+
+        async function fetchBookings() {
+            try {
+                const response = await fetch('/api/bookings/');
+                const bookings = await response.json();
+                renderBookings(bookings);
+            } catch (error) {
+                console.error('Error:', error);
+                renderMockBookings();
+            }
+        }
+
+        function renderBookings(bookings) {
+            const tbody = document.getElementById('bookingsTableBody');
+            tbody.innerHTML = bookings.map(booking => `
+                <tr>
+                    <td>${booking.full_name}</td>
+                    <td>${booking.services_name || 'Service'}</td>
+                    <td>${booking.booking_date} at ${booking.booking_time}</td>
+                    <td><span class="status-badge status-${booking.status}">${booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}</span></td>
+                    <td>
+                        ${booking.status === 'pending' ? `<button onclick="updateStatus(${booking.id}, 'confirm')" class="action-btn btn-confirm">Confirm</button>` : ''}
+                        ${booking.status === 'confirmed' ? `<button onclick="updateStatus(${booking.id}, 'complete')" class="action-btn btn-complete">Complete</button>` : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function updateStatus(id, action) {
+            try {
+                await fetch(`/api/bookings/${id}/${action}/`, { method: 'POST' });
+                fetchBookings();
+            } catch (error) {
+                alert('Action failed');
+            }
+        }
+
+        function renderMockBookings() {
+            const mock = [
+                { id: 1, full_name: 'Alice Brown', services_name: 'Full Detail', booking_date: '2023-11-01', booking_time: '10:00', status: 'pending' },
+                { id: 2, full_name: 'Bob Wilson', services_name: 'Oil Change', booking_date: '2023-11-02', booking_time: '14:30', status: 'confirmed' }
+            ];
+            renderBookings(mock);
+        }
+    </script>
+</body>
+
+</html>

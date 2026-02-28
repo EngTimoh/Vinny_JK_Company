@@ -9,7 +9,7 @@ from .views import (
     bookings_summary, booking_revenue, daily_bookings, monthly_bookings, weekly_bookings,
     CartCreateView, CartDetailView, add_to_cart, UpdateCartItemView,
     initiate_mpesa_payment, mpesa_callback, initiate_stripe_payment,
-    GalleryListCreateView, GalleryDetailView
+    GalleryListCreateView, GalleryDetailView, admin_dashboard_stats
 )
 
 urlpatterns = [
@@ -55,4 +55,7 @@ urlpatterns = [
     # Gallery
     path('gallery/', GalleryListCreateView.as_view(), name='gallery-list'),
     path('gallery/<int:pk>/', GalleryDetailView.as_view(), name='gallery-detail'),
+
+    # Admin Dashboard Stats
+    path('admin/dashboard-stats/', admin_dashboard_stats, name='admin-dashboard-stats'),
 ]

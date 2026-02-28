@@ -1,0 +1,99 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | VINNY KJ Admin{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}"
+        style="font-family: 'Montserrat', sans-serif; font-weight: 800; color: #007bff; letter-spacing: -1px;">
+        VINNY KJ <span style="font-size: 0.6em; color: #718096; font-weight: 500;">PORTAL</span>
+    </a>
+</h1>
+{% endblock %}
+
+{% block extrastyle %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@800&display=swap"
+    rel="stylesheet">
+<style>
+    /* Styling Django Admin to match professional portal */
+    :root {
+        --primary: #007bff;
+        --secondary: #6c757d;
+        --light-bg: #f4f7fe;
+    }
+
+    #header {
+        background: white !important;
+        color: #2d3748 !important;
+        border-bottom: 1px solid #edf2f7;
+        padding: 15px 40px;
+    }
+
+    #header a:link,
+    #header a:visited {
+        color: #4a5568;
+    }
+
+    #branding h1 a {
+        color: var(--primary) !important;
+    }
+
+    div.breadcrumbs {
+        background: transparent !important;
+        padding: 10px 40px !important;
+        border: none !important;
+        color: #718096 !important;
+    }
+
+    div.breadcrumbs a {
+        color: var(--primary) !important;
+    }
+
+    #content {
+        padding: 30px 40px !important;
+        background: var(--light-bg);
+        min-height: calc(100vh - 130px);
+    }
+
+    .module {
+        border-radius: 15px !important;
+        box-shadow: 0 4px 20px 0 rgba(0, 0, 0, .05) !important;
+        border: none !important;
+        overflow: hidden;
+        margin-bottom: 30px !important;
+    }
+
+    .module th,
+    .module td {
+        border-bottom: 1px solid #f4f7fe !important;
+    }
+
+    .module caption {
+        background: white !important;
+        color: #2d3748 !important;
+        font-weight: 700 !important;
+        padding: 15px !important;
+        border-bottom: 1px solid #f4f7fe !important;
+    }
+
+    input[type=submit].default,
+    .submit-row input.default {
+        background: var(--primary) !important;
+        border-radius: 10px !important;
+        padding: 10px 20px !important;
+        text-transform: none !important;
+        font-weight: 600 !important;
+    }
+
+    #user-tools {
+        color: #718096 !important;
+    }
+
+    #user-tools a {
+        color: var(--primary) !important;
+    }
+</style>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

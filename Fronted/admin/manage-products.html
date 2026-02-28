@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Management | Admin Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            padding: 20px;
+            position: relative;
+        }
+
+        .product-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+
+        .stock-level {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            padding: 5px 12px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .stock-ok {
+            background: var(--success);
+            color: white;
+        }
+
+        .stock-low {
+            background: var(--danger);
+            color: white;
+        }
+
+        .edit-price {
+            border: 1px solid #edf2f7;
+            padding: 8px;
+            border-radius: 8px;
+            width: 80px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="logo-section">
+            <h2>VINNY KJ</h2>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="manage-orders.html"><i class="fas fa-shopping-cart"></i> Manage Orders</a></li>
+            <li><a href="manage-bookings.html"><i class="fas fa-calendar-alt"></i> Manage Bookings</a></li>
+            <li><a href="manage-products.html" class="active"><i class="fas fa-box"></i> Stock Management</a></li>
+            <li><a href="../index.html"><i class="fas fa-external-link-alt"></i> View Website</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <header>
+            <div class="welcome-msg">
+                <h1>Stock Management</h1>
+                <p>Manage products and inventory levels.</p>
+            </div>
+        </header>
+
+        <div class="product-grid" id="productGrid">
+            <!-- Data loaded via JS -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', fetchProducts);
+
+        async function fetchProducts() {
+            try {
+                const response = await fetch('/api/products/');
+                const products = await response.json();
+                renderProducts(products);
+            } catch (error) {
+                console.error('Error:', error);
+                renderMockProducts();
+            }
+        }
+
+        function renderProducts(products) {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = products.map(p => `
+                <div class="product-card">
+                    <img src="${p.image || '#'}" alt="${p.name}" class="product-img">
+                    <span class="stock-level ${p.stock_quantity < 5 ? 'stock-low' : 'stock-ok'}">
+                        ${p.stock_quantity} in stock
+                    </span>
+                    <h3 style="margin-bottom: 10px;">${p.name}</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px;">${p.description.substring(0, 60)}...</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 700; color: var(--primary);">KES ${p.price}</span>
+                        <button class="action-btn btn-update"><i class="fas fa-edit"></i> Edit</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderMockProducts() {
+            const mock = [
+                { id: 1, name: 'Engine Oil 5W30', description: 'Synthetic oil for high performance engines.', price: '3,200', stock_quantity: 12 },
+                { id: 2, name: 'Brake Pads', description: 'Ceramic brake pads for long lasting stopping power.', price: '1,500', stock_quantity: 3 }
+            ];
+            renderProducts(mock);
+        }
+    </script>
+</body>
+
+</html>

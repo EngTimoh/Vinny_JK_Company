@@ -432,6 +432,24 @@ def weekly_bookings(request):
 
     return Response(weekly)
 
+@api_view(['GET'])
+def admin_dashboard_stats(request):
+    total_revenue = Payment.objects.filter(status='Completed').aggregate(total=Sum('amount'))['total'] or 0
+    total_orders = Order.objects.count()
+    pending_bookings = Booking.objects.filter(status='pending').count()
+    low_stock_count = Product.objects.filter(stock_quantity__lt=5).count()
+    
+    # Booking status distribution
+    booking_stats = Booking.objects.values('status').annotate(count=Count('id'))
+    
+    return Response({
+        "total_revenue": total_revenue,
+        "total_orders": total_orders,
+        "pending_bookings": pending_bookings,
+        "low_stock_count": low_stock_count,
+        "booking_status_distribution": {s['status']: s['count'] for s in booking_stats}
+    })
+
 AVAILABLE_TIME_SLOTS = [
     "09:00",
     "10:00",
@@ -444,9 +462,6 @@ AVAILABLE_TIME_SLOTS = [
     "18:00",
     "19:00",
     "20:00",
-    "21:00",
-    "22:00",
-    "23:00",
 ]
 #get available slots
 
