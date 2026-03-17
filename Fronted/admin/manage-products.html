@@ -88,12 +88,21 @@
         </div>
     </div>
 
+    <script src="js/auth.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', fetchProducts);
 
         async function fetchProducts() {
             try {
-                const response = await fetch('/api/products/');
+                const response = await fetch('/api/products/', {
+                    headers: getAuthHeaders()
+                });
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        logout();
+                    }
+                    throw new Error('Unauthorized or fetch failed');
+                }
                 const products = await response.json();
                 renderProducts(products);
             } catch (error) {

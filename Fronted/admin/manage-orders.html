@@ -128,12 +128,19 @@
         </div>
     </div>
 
+    <script src="js/auth.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', fetchOrders);
 
         async function fetchOrders() {
             try {
-                const response = await fetch('/api/orders/');
+                const response = await fetch('/api/orders/', {
+                    headers: getAuthHeaders()
+                });
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) logout();
+                    throw new Error('Failed to fetch');
+                }
                 const orders = await response.json();
                 renderOrders(orders);
             } catch (error) {

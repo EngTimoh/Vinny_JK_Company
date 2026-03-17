@@ -1,6 +1,7 @@
 from rest_framework import generics
 from .models import Services, Product, Order, Booking, Cart, CartItem, Payment, OrderItem, Gallery
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from django.db.models.functions import TruncDay, TruncMonth,TruncWeek
 from rest_framework import status
@@ -375,6 +376,7 @@ def complete_booking(request, booking_id):
 
 
 @api_view(['GET'])
+@permission_classes([IsAdminUser])
 def bookings_summary(request):
     total = Booking.objects.count()
     pending = Booking.objects.filter(status='pending').count()
@@ -391,6 +393,7 @@ def bookings_summary(request):
     })
 
 @api_view(['GET'])
+@permission_classes([IsAdminUser])
 def booking_revenue(request):
     revenue = Booking.objects.filter(
         status='completed'
@@ -403,6 +406,7 @@ def booking_revenue(request):
     })
 
 @api_view(['GET'])
+@permission_classes([IsAdminUser])
 def daily_bookings(request):
     daily = Booking.objects.annotate(
         day=TruncDay('created_at')
@@ -413,6 +417,7 @@ def daily_bookings(request):
     return Response(daily)
 
 @api_view(['GET'])
+@permission_classes([IsAdminUser])
 def monthly_bookings(request):
     monthly = Booking.objects.annotate(
         month=TruncMonth('created_at')
@@ -423,6 +428,7 @@ def monthly_bookings(request):
     return Response(monthly)
 
 @api_view(['GET'])
+@permission_classes([IsAdminUser])
 def weekly_bookings(request):
     weekly = Booking.objects.annotate(
         week=TruncWeek('created_at')
@@ -433,6 +439,7 @@ def weekly_bookings(request):
     return Response(weekly)
 
 @api_view(['GET'])
+@permission_classes([IsAdminUser])
 def admin_dashboard_stats(request):
     total_revenue = Payment.objects.filter(status='Completed').aggregate(total=Sum('amount'))['total'] or 0
     total_orders = Order.objects.count()

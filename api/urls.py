@@ -11,6 +11,7 @@ from .views import (
     initiate_mpesa_payment, mpesa_callback, initiate_stripe_payment,
     GalleryListCreateView, GalleryDetailView, admin_dashboard_stats
 )
+from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
     # Services
@@ -57,5 +58,6 @@ urlpatterns = [
     path('gallery/<int:pk>/', GalleryDetailView.as_view(), name='gallery-detail'),
 
     # Admin Dashboard Stats
+    path('admin/login/', obtain_auth_token, name='admin-login'),
     path('admin/dashboard-stats/', admin_dashboard_stats, name='admin-dashboard-stats'),
 ]

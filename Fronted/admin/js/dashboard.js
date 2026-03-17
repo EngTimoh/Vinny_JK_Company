@@ -6,15 +6,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function fetchDashboardStats() {
     try {
-        // Placeholder URLs - will implement backend view next
-        const response = await fetch('/api/admin/dashboard-stats/');
+        // Fetch real stats from the backend
+        const response = await fetch('/api/admin/dashboard-stats/', {
+            headers: getAuthHeaders()
+        });
+
+        if (!response.ok) {
+            if (response.status === 401 || response.status === 403) logout();
+            throw new Error('Failed to fetch dashboard stats');
+        }
+
         const data = await response.json();
-        
+
         document.getElementById('total-revenue').innerText = `KES ${data.total_revenue.toLocaleString()}`;
         document.getElementById('total-orders').innerText = data.total_orders;
         document.getElementById('total-bookings').innerText = data.pending_bookings;
         document.getElementById('low-stock').innerText = data.low_stock_count;
-        
+
     } catch (error) {
         console.error('Error fetching stats:', error);
         // Fallback for demo if API not yet ready

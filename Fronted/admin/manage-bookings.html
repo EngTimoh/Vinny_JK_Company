@@ -122,12 +122,19 @@
         </div>
     </div>
 
+    <script src="js/auth.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', fetchBookings);
 
         async function fetchBookings() {
             try {
-                const response = await fetch('/api/bookings/');
+                const response = await fetch('/api/bookings/', {
+                    headers: getAuthHeaders()
+                });
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) logout();
+                    throw new Error('Failed to fetch');
+                }
                 const bookings = await response.json();
                 renderBookings(bookings);
             } catch (error) {
@@ -154,7 +161,10 @@
 
         async function updateStatus(id, action) {
             try {
-                await fetch(`/api/bookings/${id}/${action}/`, { method: 'POST' });
+                await fetch(`/api/bookings/${id}/${action}/`, {
+                    method: 'POST',
+                    headers: getAuthHeaders()
+                });
                 fetchBookings();
             } catch (error) {
                 alert('Action failed');
