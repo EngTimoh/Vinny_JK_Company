@@ -124,7 +124,8 @@ def create_order(request):
                 email=request.data.get('email'),
                 phone_number=request.data.get('phone_number'),
                 estate=request.data.get('estate'),
-                street_address=request.data.get('street_address')
+                street_address=request.data.get('street_address'),
+                payment_method=payment_method
             )
 
             payment_method = request.data.get('payment_method', 'M-Pesa')
@@ -322,6 +323,19 @@ def mark_order_delivered(request, order_id):
 
         return Response({"message": "Order marked as delivered", "is_delivered": True})
 
+    except Order.DoesNotExist:
+        return Response({"error": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+def confirm_order(request, order_id):
+    try:
+        order = Order.objects.get(id=order_id)
+        if order.is_cancelled:
+            return Response({"error": "Cannot confirm a cancelled order"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        order.is_confirmed = True
+        order.save()
+        return Response({"message": "Order confirmed", "is_confirmed": True})
     except Order.DoesNotExist:
         return Response({"error": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
 

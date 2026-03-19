@@ -76,6 +76,26 @@
             background: var(--success);
             color: white;
         }
+
+        .detail-row {
+            display: none;
+            background: #f8fafc;
+        }
+
+        .detail-content {
+            padding: 15px 40px;
+            font-size: 0.95rem;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            padding: 5px;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
     </style>
 </head>
 
@@ -152,7 +172,12 @@
             const tbody = document.getElementById('bookingsTableBody');
             tbody.innerHTML = bookings.map(booking => `
                 <tr>
-                    <td>${booking.full_name}</td>
+                    <td>
+                        <button class="toggle-btn" onclick="toggleDetails(this, ${booking.id})">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        ${booking.full_name}
+                    </td>
                     <td>${booking.services_name || 'Service'}</td>
                     <td>${booking.booking_date} at ${booking.booking_time}</td>
                     <td><span class="status-badge status-${booking.status}">${booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}</span></td>
@@ -161,7 +186,40 @@
                         ${booking.status === 'confirmed' ? `<button onclick="updateStatus(this, ${booking.id}, 'complete')" class="action-btn btn-complete">Complete</button>` : ''}
                     </td>
                 </tr>
+                <tr id="details-${booking.id}" class="detail-row">
+                    <td colspan="5">
+                        <div class="detail-content">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Vehicle Details:</h6>
+                                    <p><strong>Model:</strong> ${booking.vehicle_model || 'N/A'}</p>
+                                    <p><strong>Plate:</strong> ${booking.number_plate || 'N/A'}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Customer Contact:</h6>
+                                    <p><strong>Phone:</strong> ${booking.phone_number}</p>
+                                    <p><strong>Email:</strong> ${booking.email || 'N/A'}</p>
+                                </div>
+                            </div>
+                            <hr>
+                            <h6>Additional Notes:</h6>
+                            <p>${booking.additional_notes || '<span class="text-muted">No notes provided.</span>'}</p>
+                        </div>
+                    </td>
+                </tr>
             `).join('');
+        }
+
+        function toggleDetails(btn, id) {
+            const detailsRow = document.getElementById(`details-${id}`);
+            const icon = btn.querySelector('i');
+            if (detailsRow.style.display === 'table-row') {
+                detailsRow.style.display = 'none';
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                detailsRow.style.display = 'table-row';
+                icon.className = 'fas fa-chevron-up';
+            }
         }
 
         async function updateStatus(btn, id, action) {

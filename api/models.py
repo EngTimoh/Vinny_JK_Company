@@ -75,6 +75,8 @@ class Order(models.Model):
     is_out_for_delivery = models.BooleanField(default=False)
     is_restored = models.BooleanField(default=False)
     is_failed = models.BooleanField(default=False)
+    is_confirmed = models.BooleanField(default=False)
+    payment_method = models.CharField(max_length=50, default='M-Pesa')
     
     def __str__(self):
         return f"Order #{self.id} - {self.full_name}"
