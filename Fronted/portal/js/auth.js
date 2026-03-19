@@ -1,6 +1,6 @@
 // auth.js - Handles Admin Authentication
 
-const BASE_URL = 'http://127.0.0.1:8000/api';
+const BASE_URL = '/api';
 
 /**
  * Check if user is authenticated before allowing access to a protected page.
