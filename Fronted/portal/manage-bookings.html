@@ -222,31 +222,53 @@
             }
         }
 
-        async function updateStatus(btn, id, action) {
-            const originalText = btn.innerText;
+        async function confirmBooking(btn, id) {
+            const orig = btn.innerHTML;
             btn.disabled = true;
-            btn.innerText = action === 'confirm' ? 'Confirming...' : 'Completing...';
-
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Confirming...';
             try {
-                const res = await fetch(`/api/bookings/${id}/${action}/`, { 
+                const res = await fetch(`/api/bookings/${id}/confirm/`, { 
                     method: 'POST',
                     headers: getAuthHeaders()
                 });
-                const data = await res.json();
-
                 if (res.ok) {
-                    const label = action === 'confirm' ? 'confirmed' : 'completed';
-                    showNotification(`Booking ${label} successfully! Confirmation email sent to client.`, 'success');
+                    showNotification('Booking confirmed!', 'success');
                     fetchBookings();
                 } else {
+                    const data = await res.json();
                     showNotification(data.error || 'Action failed', 'error');
                     btn.disabled = false;
-                    btn.innerText = originalText;
+                    btn.innerHTML = orig;
                 }
-            } catch (error) {
-                showNotification('Network error. Please try again.', 'error');
+            } catch (e) {
+                showNotification('Network error', 'error');
                 btn.disabled = false;
-                btn.innerText = originalText;
+                btn.innerHTML = orig;
+            }
+        }
+
+        async function completeBooking(btn, id) {
+            const orig = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Completing...';
+            try {
+                const res = await fetch(`/api/bookings/${id}/complete/`, { 
+                    method: 'POST',
+                    headers: getAuthHeaders()
+                });
+                if (res.ok) {
+                    showNotification('Booking marked as completed!', 'success');
+                    fetchBookings();
+                } else {
+                    const data = await res.json();
+                    showNotification(data.error || 'Action failed', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = orig;
+                }
+            } catch (e) {
+                showNotification('Network error', 'error');
+                btn.disabled = false;
+                btn.innerHTML = orig;
             }
         }
 
@@ -272,8 +294,8 @@
 
         function renderMockBookings() {
             const mock = [
-                { id: 1, full_name: 'Alice Brown', services_name: 'Full Detail', booking_date: '2023-11-01', booking_time: '10:00', status: 'pending' },
-                { id: 2, full_name: 'Bob Wilson', services_name: 'Oil Change', booking_date: '2023-11-02', booking_time: '14:30', status: 'confirmed' }
+                { id: 1, full_name: 'Alice Brown', services_name: 'Full Detail', booking_date: '2023-11-01', booking_time: '10:00', status: 'pending', phone_number: '0711223344', vehicle_model: 'Toyota Prius', number_plate: 'KAA 123A', additional_notes: 'Please check the sunroof.' },
+                { id: 2, full_name: 'Bob Wilson', services_name: 'Oil Change', booking_date: '2023-11-02', booking_time: '14:30', status: 'confirmed', phone_number: '0755667788', vehicle_model: 'Mazda CX-5', number_plate: 'KCX 789B' }
             ];
             renderBookings(mock);
         }
