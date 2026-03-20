@@ -13,10 +13,13 @@
         style="font-family: 'Inter', sans-serif; font-size: 0.55em; color: white !important; background: #007bff; padding: 4px 12px; border-radius: 6px; margin-left: 12px; font-weight: 600; text-decoration: none !important; vertical-align: middle;">
         Dashboard ↗
     </a>
-    <a href="{% url 'admin:logout' %}"
-        style="font-family: 'Inter', sans-serif; font-size: 0.55em; color: #718096 !important; background: #f8fafc; padding: 4px 12px; border: 1px solid #edf2f7; border-radius: 6px; margin-left: 8px; font-weight: 600; text-decoration: none !important; vertical-align: middle;">
-        <i class="fas fa-sign-out-alt"></i> Logout
-    </a>
+    <form action="{% url 'admin:logout' %}" method="post" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit"
+            style="font-family: 'Inter', sans-serif; font-size: 0.55em; color: #718096 !important; background: #f8fafc; padding: 6px 12px; border: 1px solid #edf2f7; border-radius: 6px; margin-left: 8px; font-weight: 600; cursor: pointer; vertical-align: middle;">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </form>
 </h1>
 {% endblock %}
 
@@ -142,7 +145,10 @@
 <div style="float: right; margin-top: -45px; font-size: 0.85rem; color: #718096;">
     {% if user.is_authenticated %}
         <strong>{{ user.username }}</strong> | 
-        <a href="{% url 'admin:logout' %}" style="color: #dc3545; font-weight: 600;">Logout</a>
+        <form action="{% url 'admin:logout' %}" method="post" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" style="background: none; border: none; padding: 0; color: #dc3545; font-weight: 600; cursor: pointer; display: inline-block;">Logout</button>
+        </form>
     {% endif %}
 </div>
 {% endblock %}

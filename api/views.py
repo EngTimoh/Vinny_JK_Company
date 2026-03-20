@@ -23,6 +23,9 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.conf import settings
+from rest_framework import permissions
 from .utils import MpesaClient, create_stripe_payment_intent, send_receipt_email
 import json
 import logging
@@ -859,9 +862,11 @@ def initiate_stripe_payment(request, order_id):
     
     return Response({"error": "Failed to create payment intent"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@method_decorator(csrf_exempt, name='dispatch')
 class ContactCreateView(generics.CreateAPIView):
     queryset = ContactMessage.objects.all()
     serializer_class = ContactMessageSerializer
+    permission_classes = [permissions.AllowAny]
 
     def perform_create(self, serializer):
         instance = serializer.save()
