@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Messages | Admin Portal</title>
+    <script src="js/auth.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .table-container {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px;
+            color: var(--text-muted);
+            border-bottom: 2px solid #f4f7fe;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f4f7fe;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-unread {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+
+        .status-read {
+            background: rgba(40, 167, 69, 0.1);
+            color: #155724;
+        }
+
+        .detail-row {
+            display: none;
+            background: #f8fafc;
+        }
+
+        .detail-content {
+            padding: 15px 40px;
+            font-size: 0.95rem;
+        }
+
+        .message-body {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #edf2f7;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-right: 5px;
+            transition: 0.2s;
+        }
+
+        .btn-read {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-delete {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            padding: 5px;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+    </style>
+</head>
+
+<body style="display: none;">
+    <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="logo-section">
+            <h2>VINNY KJ</h2>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="manage-orders.html"><i class="fas fa-shopping-cart"></i> Manage Orders</a></li>
+            <li><a href="manage-bookings.html"><i class="fas fa-calendar-alt"></i> Manage Bookings</a></li>
+            <li><a href="manage-products.html"><i class="fas fa-box"></i> Stock Management</a></li>
+            <li><a href="manage-messages.html" class="active"><i class="fas fa-envelope"></i> Contact Messages</a></li>
+            <li><a href="/admin/" target="_blank"><i class="fas fa-cogs"></i> Django Admin</a></li>
+            <li><a href="/"><i class="fas fa-external-link-alt"></i> View Website</a></li>
+            <li style="margin-top: auto; border-top: 1px solid #edf2f7; padding-top: 10px;">
+                <a href="#" class="logout-btn" style="color: var(--danger);">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <header>
+            <div class="welcome-msg">
+                <h1>Contact Messages</h1>
+                <p>Manage customer inquiries and messages.</p>
+            </div>
+        </header>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sender</th>
+                        <th>Subject</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="messagesTableBody">
+                    <!-- Data loaded via JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', fetchMessages);
+
+        async function fetchMessages() {
+            try {
+                const response = await fetch('/api/contact/messages/', {
+                    headers: getAuthHeaders()
+                });
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) logout();
+                    throw new Error('Failed to fetch');
+                }
+                const messages = await response.json();
+                renderMessages(messages);
+            } catch (error) {
+                console.error('Error:', error);
+                renderMockMessages();
+            }
+        }
+
+        function renderMessages(messages) {
+            const tbody = document.getElementById('messagesTableBody');
+            if (messages.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center">No messages found.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = messages.map(msg => `
+                <tr class="${msg.is_read ? '' : 'fw-bold'}">
+                    <td>
+                        <button class="toggle-btn" onclick="toggleDetails(this, ${msg.id})">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        ${msg.name}
+                    </td>
+                    <td>${msg.subject}</td>
+                    <td>
+                        <span class="status-badge ${msg.is_read ? 'status-read' : 'status-unread'}">
+                            ${msg.is_read ? 'Read' : 'New'}
+                        </span>
+                    </td>
+                    <td>${new Date(msg.created_at).toLocaleDateString()}</td>
+                    <td>
+                        ${msg.is_read ? '' : `<button class="action-btn btn-read" onclick="markAsRead(this, ${msg.id})">Mark Read</button>`}
+                        <button class="action-btn btn-delete" onclick="deleteMessage(this, ${msg.id})"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+                <tr id="details-${msg.id}" class="detail-row">
+                    <td colspan="5">
+                        <div class="detail-content">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <span><strong>Email:</strong> ${msg.email || 'N/A'}</span>
+                                <span><strong>Phone:</strong> ${msg.phone_number || 'N/A'}</span>
+                            </div>
+                            <strong>Message:</strong>
+                            <div class="message-body">${msg.message}</div>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function toggleDetails(btn, id) {
+            const detailsRow = document.getElementById(`details-${id}`);
+            const icon = btn.querySelector('i');
+            if (detailsRow.style.display === 'table-row') {
+                detailsRow.style.display = 'none';
+                icon.className = 'fas fa-chevron-down';
+            } else {
+                detailsRow.style.display = 'table-row';
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+
+        async function markAsRead(btn, id) {
+            try {
+                const res = await fetch(`/api/contact/messages/${id}/`, {
+                    method: 'PATCH',
+                    headers: {
+                        ...getAuthHeaders(),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ is_read: true })
+                });
+                if (res.ok) {
+                    fetchMessages();
+                }
+            } catch (e) {
+                console.error('Error marking as read:', e);
+            }
+        }
+
+        async function deleteMessage(btn, id) {
+            if (!confirm('Are you sure you want to delete this message?')) return;
+            try {
+                const res = await fetch(`/api/contact/messages/${id}/`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+                if (res.ok) {
+                    fetchMessages();
+                }
+            } catch (e) {
+                console.error('Error deleting message:', e);
+            }
+        }
+
+        function renderMockMessages() {
+            const mock = [
+                { id: 1, name: 'James Kariuki', email: 'james@example.com', phone_number: '0711223344', subject: 'Service Inquiry', message: 'Hi, do you offer mobile tinting services in Kiambu?', created_at: new Date(), is_read: false },
+                { id: 2, name: 'Sarah Omari', email: 'sarah@example.com', phone_number: '0722334455', subject: 'Carbon Tint Price', message: 'How much for a full SUV carbon tint?', created_at: new Date(), is_read: true }
+            ];
+            renderMessages(mock);
+        }
+    </script>
+    <script>
+        (function () {
+            const toggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('active'); }
+            toggle.addEventListener('click', function () {
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('active');
+            });
+            overlay.addEventListener('click', closeSidebar);
+        })();
+    </script>
+</body>
+
+</html>

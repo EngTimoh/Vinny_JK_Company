@@ -889,3 +889,13 @@ class ContactCreateView(generics.CreateAPIView):
             logger.info(f"Contact inquiry email sent for message {instance.id}")
         except Exception as e:
             logger.error(f"Failed to send contact inquiry email for message {instance.id}: {e}")
+
+class ContactListView(generics.ListAPIView):
+    queryset = ContactMessage.objects.all().order_by('-created_at')
+    serializer_class = ContactMessageSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+class ContactDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = ContactMessage.objects.all()
+    serializer_class = ContactMessageSerializer
+    permission_classes = [permissions.IsAdminUser]

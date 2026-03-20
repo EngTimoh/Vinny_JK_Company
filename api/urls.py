@@ -10,7 +10,7 @@ from .views import (
     CartCreateView, CartDetailView, add_to_cart, UpdateCartItemView,
     initiate_mpesa_payment, mpesa_callback, initiate_stripe_payment,
     GalleryListCreateView, GalleryDetailView, admin_dashboard_stats,
-    ContactCreateView
+    ContactCreateView, ContactListView, ContactDetailView
 )
 from rest_framework.authtoken.views import obtain_auth_token
 
@@ -66,4 +66,6 @@ urlpatterns = [
 
     # Contact
     path('contact/', ContactCreateView.as_view(), name='contact-create'),
+    path('contact/messages/', ContactListView.as_view(), name='contact-list'),
+    path('contact/messages/<int:pk>/', ContactDetailView.as_view(), name='contact-detail'),
 ]
