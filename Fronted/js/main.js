@@ -244,15 +244,85 @@ const CartManager = {
 let allProducts = [];
 let allServices = [];
 
+// ---- Global Helper for Slides/BeforeAfter ----
+function initializeAutoCarousels() {
+  const carousels = document.querySelectorAll('.auto-start-carousel');
+  carousels.forEach(carousel => {
+    // If it's already initialized by Bootstrap, this does nothing destructive
+    if (window.bootstrap && bootstrap.Carousel) {
+      let bsCarousel = bootstrap.Carousel.getInstance(carousel);
+      if (!bsCarousel) {
+        bsCarousel = new bootstrap.Carousel(carousel, {
+          interval: 5000,
+          ride: 'carousel'
+        });
+      }
+      bsCarousel.cycle();
+    }
+  });
+}
+
+function generateImageSliderHTML(item, type, isPreview = false) {
+  const images = item.images || [];
+  let allImages = [];
+  const imageHeight = isPreview ? 150 : 180;
+  if (images.length > 0) {
+    allImages = images;
+  } else if (item.image) {
+    allImages = [{ image: item.image, image_type: 'general' }];
+  } else {
+    allImages = [{ image: 'https://via.placeholder.com/400x250?text=' + (type === 'service' ? 'Service' : 'Product'), image_type: 'general' }];
+  }
+
+  if (allImages.length === 1) {
+    const imgUrl = getImageUrl(allImages[0].image);
+    let badgeHtml = '';
+    if (!!allImages[0].image_type && ['before', 'after'].includes(allImages[0].image_type.toLowerCase())) {
+         badgeHtml = `<span class="badge bg-warning text-dark position-absolute m-2" style="top:0; left:0; z-index:5; font-size: 0.8rem; font-weight: bold; text-transform: uppercase;">${allImages[0].image_type}</span>`;
+    }
+    return `<div style="position:relative;">${badgeHtml}<img src="${imgUrl}" class="card-img-top" alt="${item.name}" style="height: ${imageHeight}px; object-fit: cover;" onerror="this.src='https://via.placeholder.com/400x250?text=${type}'"></div>`;
+  }
+
+  const carouselId = `carousel-${type}-${item.id}`;
+  const itemsHtml = allImages.map((img, index) => {
+    let badgeHtml = '';
+    let iType = img.image_type ? img.image_type.toLowerCase() : '';
+    if (iType === 'before' || iType === 'after') {
+      badgeHtml = `<span class="badge bg-warning text-dark position-absolute m-2" style="top:0; left:0; z-index:5; font-size: 0.8rem; font-weight: bold; text-transform: uppercase;">${img.image_type}</span>`;
+    }
+    return `
+      <div class="carousel-item ${index === 0 ? 'active' : ''}">
+        ${badgeHtml}
+        <img src="${getImageUrl(img.image)}" class="d-block w-100 card-img-top" alt="${item.name}" style="height: ${imageHeight}px; object-fit: cover;" onerror="this.src='https://via.placeholder.com/400x250?text=${type}'">
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div id="${carouselId}" class="carousel slide carousel-fade auto-start-carousel" data-bs-ride="carousel" data-bs-interval="5000" onclick="event.stopPropagation();">
+      <div class="carousel-inner">
+        ${itemsHtml}
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#${carouselId}" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#${carouselId}" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+  `;
+}
+
 function renderServiceCard(service, isPreview) {
-  // Use first image from images array if available, else fall back to service.image
-  const firstImage = (service.images && service.images.length > 0) ? service.images[0].image : service.image;
-  const imgUrl = getImageUrl(firstImage);
   const desc = truncateText(service.description, 100);
+  const imageHTML = generateImageSliderHTML(service, 'service', isPreview);
+
   return `
     <div class="col-md-6 col-lg-4">
-      <div class="card-custom">
-        <img src="${imgUrl}" class="card-img-top" alt="${service.name}" onerror="this.src='https://via.placeholder.com/400x250?text=Service'">
+      <div class="card-custom ${isPreview ? 'card-custom-preview' : ''}">
+        ${imageHTML}
         <div class="card-body">
           <h5 class="card-title">${service.name}</h5>
           <p class="card-text">${desc}</p>
@@ -282,8 +352,7 @@ window.selectServiceForBooking = function (serviceId, servicePrice) {
   }
 };
 function renderProductCard(product, isPreview) {
-  const firstImage = (product.images && product.images.length > 0) ? product.images[0].image : product.image;
-  const imgUrl = getImageUrl(firstImage);
+  const imageHTML = generateImageSliderHTML(product, 'product', isPreview);
   const desc = truncateText(product.description, isPreview ? 80 : 120);
   const inStock = product.is_available && product.stock_quantity > 0;
   const stockText = inStock ? `${product.stock_quantity} in stock` : 'Out of Stock';
@@ -300,23 +369,15 @@ function renderProductCard(product, isPreview) {
        <span class="price-discounted">${formatPrice(product.discounted_price)}</span>`
     : `<div class="card-price">${formatPrice(product.price)}</div>`;
 
-  // Category tag
-  let catVal = product.category;
-  if (catVal === '1') catVal = 'Spare parts';
-  if (catVal === '2') catVal = 'Electrical';
-  if (catVal === '3') catVal = 'Service parts';
-  if (catVal === '4') catVal = 'Lubricants';
-
-  const categoryTag = (catVal && !/^\d+$/.test(catVal))
-    ? `<span class="category-tag">${catVal.toUpperCase()}</span>`
-    : '';
+  // Category tag removed as per request
+  const categoryTag = '';
 
   const safeName = (product.name || '').replace(/'/g, "\\'");
   const effectivePrice = hasDiscount ? product.discounted_price : product.price;
 
   const quickAddBtn = inStock
     ? `<button class="btn btn-outline-custom btn-sm d-flex align-items-center justify-content-center gap-1"
-               onclick="event.stopPropagation(); CartManager.add({id: ${product.id}, name: '${safeName}', price: ${effectivePrice}, image: '${firstImage}', stock: ${product.stock_quantity}}, this)"
+               onclick="event.stopPropagation(); CartManager.add({id: ${product.id}, name: '${safeName}', price: ${effectivePrice}, image: '${product.image || ''}', stock: ${product.stock_quantity}}, this)"
                title="Quick Add to Cart">
          <span class="material-icons" style="font-size:1rem;">add_shopping_cart</span>
        </button>`
@@ -324,11 +385,11 @@ function renderProductCard(product, isPreview) {
 
   return `
     <div class="${isPreview ? 'col-sm-6 col-lg-4' : 'col-sm-6 col-lg-4 col-xl-3'}">
-      <div class="card-custom">
+      <div class="card-custom ${isPreview ? 'card-custom-preview' : ''}">
         <div class="card-img-container">
           ${discountBadge}
           <span class="card-stock-badge ${stockClass}">${stockText}</span>
-          <img src="${imgUrl}" class="card-img-top" alt="${product.name}" onerror="this.src='https://via.placeholder.com/400x250?text=Product'">
+          ${imageHTML}
         </div>
         <div class="card-body">
           ${categoryTag}
@@ -478,7 +539,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (products && products.length > 0) {
       allProducts = products;
       if (productsContainer) {
-        productsContainer.innerHTML = products.map(p => renderProductCard(p, false)).join('');
+        filterAndRenderProducts();
       }
       if (productsPreview) {
         productsPreview.innerHTML = products.filter(p => p.is_available).slice(0, 3).map(p => renderProductCard(p, true)).join('');
@@ -500,9 +561,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       const pId = parseInt(urlParams.get('product'), 10);
       setTimeout(() => openProductDetail(pId), 100);
     }
-  }
+  } // Added missing brace here
+      
+  initializeAutoCarousels();
 
-  // Load Services
   const servicesContainer = document.getElementById('servicesContainer');
   const servicesPreview = document.getElementById('servicesPreviewContainer');
   const noServices = document.getElementById('noServicesFound');
@@ -533,11 +595,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       const sId = parseInt(urlParams.get('service'), 10);
       setTimeout(() => openServiceDetail(sId), 100);
     }
-  }
-
-  // Booking logic
-  const bookingForm = document.getElementById('bookingForm');
-  if (bookingForm) {
+      
+      // Init any rendered carousels explicitly because they were added dynamically
+      initializeAutoCarousels();
     const bookingDateInput = document.getElementById('bookingDate');
     if (bookingDateInput) {
       // Set minimum date to today to prevent past bookings
@@ -618,7 +678,13 @@ function filterAndRenderProducts() {
   if (filterValue === 'in-stock') {
     filtered = filtered.filter(p => p.is_available && p.stock_quantity > 0);
   } else if (filterValue !== 'all') {
-    filtered = filtered.filter(p => p.category === filterValue);
+    // Normalizing DB values logic since backend might be returning numbers as strings.
+    let catFilter = filterValue;
+    if (filterValue === 'Spare parts') catFilter = '1';
+    else if (filterValue === 'Electrical') catFilter = '2';
+    else if (filterValue === 'Service parts') catFilter = '3';
+    else if (filterValue === 'Lubricants') catFilter = '4';
+    filtered = filtered.filter(p => p.category === filterValue || p.category === catFilter);
   }
 
   // Text search (name + description)
@@ -630,8 +696,33 @@ function filterAndRenderProducts() {
   }
 
   if (filtered.length > 0) {
-    container.innerHTML = filtered.map(p => renderProductCard(p, false)).join('');
+    // Group products by their normalized category string
+    const grouped = {};
+    filtered.forEach(p => {
+      let cName = p.category;
+      if (cName === '1') cName = 'Spare parts';
+      else if (cName === '2') cName = 'Electrical';
+      else if (cName === '3') cName = 'Service parts';
+      else if (cName === '4') cName = 'Lubricants';
+      else if (!cName || /^\d+$/.test(cName)) cName = 'Other';
+      
+      if (!grouped[cName]) grouped[cName] = [];
+      grouped[cName].push(p);
+    });
+
+    let html = '';
+    // Sort categories, maybe 'Other' at the end
+    const categories = Object.keys(grouped).sort();
+    categories.forEach(cat => {
+      html += `<div class="col-12 mt-4 mb-2"><h3 class="border-bottom pb-2" style="color: #e8a825;">${cat}</h3></div>`;
+      html += grouped[cat].map(p => renderProductCard(p, false)).join('');
+    });
+
+    container.innerHTML = html;
     if (noProducts) noProducts.classList.add('d-none');
+    
+    // Initialize carousels after injecting new DOM nodes
+    initializeAutoCarousels();
   } else {
     container.innerHTML = '';
     if (noProducts) noProducts.classList.remove('d-none');
@@ -775,9 +866,11 @@ function openCheckoutModal() {
     `).join('');
   }
   document.getElementById('checkoutTotalDisplay').textContent = formatPrice(CartManager.getTotal());
-  selectedPaymentMethod = null;
-  document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
   if (document.getElementById('stkPrompt')) document.getElementById('stkPrompt').classList.add('d-none');
+  
+  // Default to delivery since M-Pesa is disabled
+  selectPayment('delivery');
+  
   new bootstrap.Modal(modalEl).show();
 }
 
