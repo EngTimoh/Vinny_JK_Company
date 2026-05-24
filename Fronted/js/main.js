@@ -262,9 +262,10 @@ function initializeAutoCarousels() {
   });
 }
 
-function generateImageSliderHTML(item, type) {
+function generateImageSliderHTML(item, type, isPreview = false) {
   const images = item.images || [];
   let allImages = [];
+  const imageHeight = isPreview ? 150 : 180;
   if (images.length > 0) {
     allImages = images;
   } else if (item.image) {
@@ -279,7 +280,7 @@ function generateImageSliderHTML(item, type) {
     if (!!allImages[0].image_type && ['before', 'after'].includes(allImages[0].image_type.toLowerCase())) {
          badgeHtml = `<span class="badge bg-warning text-dark position-absolute m-2" style="top:0; left:0; z-index:5; font-size: 0.8rem; font-weight: bold; text-transform: uppercase;">${allImages[0].image_type}</span>`;
     }
-    return `<div style="position:relative;">${badgeHtml}<img src="${imgUrl}" class="card-img-top" alt="${item.name}" onerror="this.src='https://via.placeholder.com/400x250?text=${type}'"></div>`;
+    return `<div style="position:relative;">${badgeHtml}<img src="${imgUrl}" class="card-img-top" alt="${item.name}" style="height: ${imageHeight}px; object-fit: cover;" onerror="this.src='https://via.placeholder.com/400x250?text=${type}'"></div>`;
   }
 
   const carouselId = `carousel-${type}-${item.id}`;
@@ -292,7 +293,7 @@ function generateImageSliderHTML(item, type) {
     return `
       <div class="carousel-item ${index === 0 ? 'active' : ''}">
         ${badgeHtml}
-        <img src="${getImageUrl(img.image)}" class="d-block w-100 card-img-top" alt="${item.name}" style="height: 220px; object-fit: cover;" onerror="this.src='https://via.placeholder.com/400x250?text=${type}'">
+        <img src="${getImageUrl(img.image)}" class="d-block w-100 card-img-top" alt="${item.name}" style="height: ${imageHeight}px; object-fit: cover;" onerror="this.src='https://via.placeholder.com/400x250?text=${type}'">
       </div>
     `;
   }).join('');
@@ -316,11 +317,11 @@ function generateImageSliderHTML(item, type) {
 
 function renderServiceCard(service, isPreview) {
   const desc = truncateText(service.description, 100);
-  const imageHTML = generateImageSliderHTML(service, 'service');
+  const imageHTML = generateImageSliderHTML(service, 'service', isPreview);
 
   return `
     <div class="col-md-6 col-lg-4">
-      <div class="card-custom">
+      <div class="card-custom ${isPreview ? 'card-custom-preview' : ''}">
         ${imageHTML}
         <div class="card-body">
           <h5 class="card-title">${service.name}</h5>
@@ -351,7 +352,7 @@ window.selectServiceForBooking = function (serviceId, servicePrice) {
   }
 };
 function renderProductCard(product, isPreview) {
-  const imageHTML = generateImageSliderHTML(product, 'product');
+  const imageHTML = generateImageSliderHTML(product, 'product', isPreview);
   const desc = truncateText(product.description, isPreview ? 80 : 120);
   const inStock = product.is_available && product.stock_quantity > 0;
   const stockText = inStock ? `${product.stock_quantity} in stock` : 'Out of Stock';
@@ -384,7 +385,7 @@ function renderProductCard(product, isPreview) {
 
   return `
     <div class="${isPreview ? 'col-sm-6 col-lg-4' : 'col-sm-6 col-lg-4 col-xl-3'}">
-      <div class="card-custom">
+      <div class="card-custom ${isPreview ? 'card-custom-preview' : ''}">
         <div class="card-img-container">
           ${discountBadge}
           <span class="card-stock-badge ${stockClass}">${stockText}</span>
