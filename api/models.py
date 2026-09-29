@@ -2,6 +2,7 @@
 from django.db import models
 import uuid
 from django.utils import timezone
+from .image_utils import process_model_image_field
 
 class Services(models.Model):
     name = models.CharField(max_length=255)
@@ -10,6 +11,11 @@ class Services(models.Model):
     image = models.ImageField(upload_to='services/')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if self.image:
+            process_model_image_field(self, 'image')
+        super().save(*args, **kwargs)
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -44,6 +50,11 @@ class ServiceImage(models.Model):
 
     def __str__(self):
         return f"{self.service.name} Image"
+
+    def save(self, *args, **kwargs):
+        if self.image:
+            process_model_image_field(self, 'image')
+        super().save(*args, **kwargs)
 
 
 class Product(models.Model):
@@ -107,6 +118,11 @@ class Product(models.Model):
             self.is_available = True
         self.save()
 
+    def save(self, *args, **kwargs):
+        if self.image:
+            process_model_image_field(self, 'image')
+        super().save(*args, **kwargs)
+
         # adding multiple images to products
 class ProductImage(models.Model):
 
@@ -125,6 +141,11 @@ class ProductImage(models.Model):
 
     def __str__(self):
         return f"{self.product.name} Image"
+
+    def save(self, *args, **kwargs):
+        if self.image:
+            process_model_image_field(self, 'image')
+        super().save(*args, **kwargs)
 
 class Order(models.Model):
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -243,6 +264,11 @@ class Gallery(models.Model):
 
     def __str__(self):
         return self.title or f"Gallery Item {self.id}"
+
+    def save(self, *args, **kwargs):
+        if self.image:
+            process_model_image_field(self, 'image')
+        super().save(*args, **kwargs)
 
 
 class ContactMessage(models.Model):

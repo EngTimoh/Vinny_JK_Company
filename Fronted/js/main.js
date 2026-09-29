@@ -61,26 +61,58 @@ function hideAlert(elementId) {
   if (el) el.classList.add('d-none');
 }
 
+// ---- Client-side API Cache for Instant Page Loads ----
+const apiCache = {
+  get(key) {
+    try {
+      const item = sessionStorage.getItem(`vinkj_cache_${key}`);
+      if (!item) return null;
+      const parsed = JSON.parse(item);
+      if (Date.now() - parsed.time < 180000) { // 3 minutes TTL
+        return parsed.data;
+      }
+    } catch (e) {}
+    return null;
+  },
+  set(key, data) {
+    try {
+      sessionStorage.setItem(`vinkj_cache_${key}`, JSON.stringify({ data, time: Date.now() }));
+    } catch (e) {}
+  }
+};
+
 // ---- API Fetch Functions ----
-async function fetchServices() {
+async function fetchServices(forceRefresh = false) {
+  if (!forceRefresh) {
+    const cached = apiCache.get('services');
+    if (cached) return cached;
+  }
   try {
     const response = await fetch(`${API_BASE_URL}/services/`);
     if (!response.ok) throw new Error('Failed to fetch services');
-    return await response.json();
+    const data = await response.json();
+    apiCache.set('services', data);
+    return data;
   } catch (error) {
     console.warn('API error:', error.message);
-    return null;
+    return apiCache.get('services') || null;
   }
 }
 
-async function fetchProducts() {
+async function fetchProducts(forceRefresh = false) {
+  if (!forceRefresh) {
+    const cached = apiCache.get('products');
+    if (cached) return cached;
+  }
   try {
     const response = await fetch(`${API_BASE_URL}/products/`);
     if (!response.ok) throw new Error('Failed to fetch products');
-    return await response.json();
+    const data = await response.json();
+    apiCache.set('products', data);
+    return data;
   } catch (error) {
     console.warn('API error:', error.message);
-    return null;
+    return apiCache.get('products') || null;
   }
 }
 
@@ -408,14 +440,20 @@ function renderProductCard(product, isPreview) {
   `;
 }
 
-async function fetchGallery() {
+async function fetchGallery(forceRefresh = false) {
+  if (!forceRefresh) {
+    const cached = apiCache.get('gallery');
+    if (cached) return cached;
+  }
   try {
     const response = await fetch(`${API_BASE_URL}/gallery/`, { signal: AbortSignal.timeout(5000) });
     if (!response.ok) throw new Error('Failed to fetch gallery');
-    return await response.json();
+    const data = await response.json();
+    apiCache.set('gallery', data);
+    return data;
   } catch (error) {
     console.warn('Error fetching gallery:', error);
-    return null;
+    return apiCache.get('gallery') || null;
   }
 }
 
@@ -524,15 +562,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // The checkoutBtn click listener has been moved to the document level to handle dynamic button generation.
 
-  // Load Products
+  // Containers for Products and Services
   const productsContainer = document.getElementById('productsContainer');
   const productsPreview = document.getElementById('productsPreviewContainer');
   const noProducts = document.getElementById('noProductsFound');
 
-  if (productsContainer || productsPreview) {
-    const products = await fetchProducts();
+  const servicesContainer = document.getElementById('servicesContainer');
+  const servicesPreview = document.getElementById('servicesPreviewContainer');
+  const noServices = document.getElementById('noServicesFound');
+  const bookingServiceSelect = document.getElementById('bookingService');
 
-    // Hide spinner by clearing container
+  // Parallel fetch: Load products and services concurrently for fastest page speed
+  const needsProducts = !!(productsContainer || productsPreview);
+  const needsServices = !!(servicesContainer || servicesPreview || bookingServiceSelect);
+
+  const [products, services] = await Promise.all([
+    needsProducts ? fetchProducts() : Promise.resolve(null),
+    needsServices ? fetchServices() : Promise.resolve(null)
+  ]);
+
+  // Handle Products
+  if (needsProducts) {
     if (productsContainer) productsContainer.innerHTML = '';
     if (productsPreview) productsPreview.innerHTML = '';
 
@@ -550,36 +600,26 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (productsPreview) productsPreview.innerHTML = '<p class="text-center opacity-50">New products coming soon!</p>';
     }
 
-    // Wire up search and filter
     const searchInput = document.getElementById('productSearch');
     const filterSelect = document.getElementById('productFilter');
     if (searchInput) searchInput.addEventListener('input', filterAndRenderProducts);
     if (filterSelect) filterSelect.addEventListener('change', filterAndRenderProducts);
 
-    // Auto-open product detail if param is present
     if (urlParams.get('product') && document.getElementById('productDetailModal')) {
       const pId = parseInt(urlParams.get('product'), 10);
       setTimeout(() => openProductDetail(pId), 100);
     }
-  } // Added missing brace here
-      
-  initializeAutoCarousels();
+  }
 
-  const servicesContainer = document.getElementById('servicesContainer');
-  const servicesPreview = document.getElementById('servicesPreviewContainer');
-  const noServices = document.getElementById('noServicesFound');
-
-  if (servicesContainer || servicesPreview) {
-    const services = await fetchServices();
-
-    // Hide spinner
+  // Handle Services
+  if (needsServices) {
     if (servicesContainer) servicesContainer.innerHTML = '';
     if (servicesPreview) servicesPreview.innerHTML = '';
 
     if (services && services.length > 0) {
       allServices = services;
       if (servicesContainer) {
-        servicesContainer.innerHTML = services.map(s => renderServiceCard(s, false)).join('');
+        filterAndRenderServices();
       }
       if (servicesPreview) {
         servicesPreview.innerHTML = services.slice(0, 3).map(s => renderServiceCard(s, true)).join('');
@@ -590,29 +630,31 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (servicesPreview) servicesPreview.innerHTML = '<p class="text-center opacity-50">Our services are being updated. Check back soon!</p>';
     }
 
-    // Auto-open service detail if param is present
+    // Wire up Services search and sorting
+    const serviceSearchInput = document.getElementById('serviceSearch');
+    const serviceSortSelect = document.getElementById('serviceSort');
+    if (serviceSearchInput) serviceSearchInput.addEventListener('input', filterAndRenderServices);
+    if (serviceSortSelect) serviceSortSelect.addEventListener('change', filterAndRenderServices);
+
     if (urlParams.get('service') && document.getElementById('serviceDetailModal')) {
       const sId = parseInt(urlParams.get('service'), 10);
       setTimeout(() => openServiceDetail(sId), 100);
     }
-      
-      // Init any rendered carousels explicitly because they were added dynamically
-      initializeAutoCarousels();
+
+    // Booking form setup (using the already fetched services, NO extra network request)
     const bookingDateInput = document.getElementById('bookingDate');
     if (bookingDateInput) {
-      // Set minimum date to today to prevent past bookings
       const today = new Date().toISOString().split('T')[0];
       bookingDateInput.setAttribute('min', today);
     }
 
-    const bookingServiceSelect = document.getElementById('bookingService');
     if (bookingServiceSelect) {
-      const services = await fetchServices();
-      if (services && services.length > 0) {
+      const availableServices = (services && services.length > 0) ? services : allServices;
+      if (availableServices && availableServices.length > 0) {
         bookingServiceSelect.innerHTML = '<option value="" disabled selected>-- Select a Service --</option>' +
-          services.map(s => `<option value="${s.id}" data-price="${s.price}">${s.name} - ${formatPrice(s.price)}</option>`).join('');
+          availableServices.map(s => `<option value="${s.id}" data-price="${s.price}">${s.name} - ${formatPrice(s.price)}</option>`).join('');
       } else {
-        bookingServiceSelect.innerHTML = '<option value="" disabled selected>No services available at currently</option>';
+        bookingServiceSelect.innerHTML = '<option value="" disabled selected>No services available currently</option>';
       }
 
       const savedId = sessionStorage.getItem('selectedServiceId');
@@ -626,42 +668,93 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       bookingServiceSelect.addEventListener('change', function () {
         const selected = this.options[this.selectedIndex];
-        document.getElementById('bookingPrice').textContent = formatPrice(selected.dataset.price);
+        if (selected && selected.dataset.price) {
+          document.getElementById('bookingPrice').textContent = formatPrice(selected.dataset.price);
+        }
       });
     }
 
-    bookingForm.addEventListener('submit', async function (e) {
-      e.preventDefault();
-      const submitBtn = document.getElementById('bookingSubmitBtn');
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Submitting...';
-      try {
-        const price = bookingServiceSelect.options[bookingServiceSelect.selectedIndex].dataset.price;
-        const bookingData = {
-          services: bookingServiceSelect.value,
-          total_price: parseFloat(price),
-          full_name: document.getElementById('bookingName').value,
-          email: document.getElementById('bookingEmail').value,
-          phone_number: document.getElementById('bookingPhone').value,
-          vehicle_model: document.getElementById('bookingVehicle').value,
-          number_plate: document.getElementById('bookingPlate').value,
-          booking_date: document.getElementById('bookingDate').value,
-          booking_time: document.getElementById('bookingTime').value,
-          additional_notes: document.getElementById('bookingNotes').value
-        };
-        const response = await createBooking(bookingData);
-        generateReceipt('booking', bookingData, response);
-        showAlert('bookingSuccess', 'Booking submitted!', 8000);
-        bookingForm.reset();
-      } catch (err) {
-        showAlert('bookingError', err.message, 6000);
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Submit Booking';
-      }
-    });
+    const bookingForm = document.getElementById('bookingForm');
+    if (bookingForm) {
+      bookingForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const submitBtn = document.getElementById('bookingSubmitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
+        try {
+          const price = bookingServiceSelect.options[bookingServiceSelect.selectedIndex].dataset.price;
+          const bookingData = {
+            services: bookingServiceSelect.value,
+            total_price: parseFloat(price),
+            full_name: document.getElementById('bookingName').value,
+            email: document.getElementById('bookingEmail').value,
+            phone_number: document.getElementById('bookingPhone').value,
+            vehicle_model: document.getElementById('bookingVehicle').value,
+            number_plate: document.getElementById('bookingPlate').value,
+            booking_date: document.getElementById('bookingDate').value,
+            booking_time: document.getElementById('bookingTime').value,
+            additional_notes: document.getElementById('bookingNotes').value
+          };
+          const response = await createBooking(bookingData);
+          generateReceipt('booking', bookingData, response);
+          showAlert('bookingSuccess', 'Booking submitted!', 8000);
+          bookingForm.reset();
+        } catch (err) {
+          showAlert('bookingError', err.message, 6000);
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit Booking';
+        }
+      });
+    }
   }
+
+  initializeAutoCarousels();
 });
+
+// ---- Services Search & Filter ----
+function filterAndRenderServices() {
+  const container = document.getElementById('servicesContainer');
+  const noServices = document.getElementById('noServicesFound');
+  if (!container) return;
+
+  const searchTerm = (document.getElementById('serviceSearch')?.value || '').toLowerCase().trim();
+  const sortValue = document.getElementById('serviceSort')?.value || 'all';
+
+  let filtered = [...allServices];
+
+  // Text search (name + description)
+  if (searchTerm) {
+    filtered = filtered.filter(s =>
+      (s.name || '').toLowerCase().includes(searchTerm) ||
+      (s.description || '').toLowerCase().includes(searchTerm)
+    );
+  }
+
+  // Sorting
+  if (sortValue === 'price-asc') {
+    filtered.sort((a, b) => parseFloat(a.price || 0) - parseFloat(b.price || 0));
+  } else if (sortValue === 'price-desc') {
+    filtered.sort((a, b) => parseFloat(b.price || 0) - parseFloat(a.price || 0));
+  } else if (sortValue === 'name-asc') {
+    filtered.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  }
+
+  if (filtered.length > 0) {
+    container.innerHTML = filtered.map(s => renderServiceCard(s, false)).join('');
+    if (noServices) noServices.classList.add('d-none');
+    initializeAutoCarousels();
+  } else {
+    container.innerHTML = '';
+    if (noServices) {
+      noServices.classList.remove('d-none');
+      const h5 = noServices.querySelector('h5');
+      if (h5) h5.textContent = searchTerm ? 'No matching services found' : 'No services listed yet';
+      const p = noServices.querySelector('p');
+      if (p) p.textContent = searchTerm ? 'Try adjusting your search terms' : 'Check back soon';
+    }
+  }
+}
 
 // ---- Product Search & Filter ----
 function filterAndRenderProducts() {
