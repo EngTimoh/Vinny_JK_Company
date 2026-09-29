@@ -50,7 +50,7 @@ class CustomObtainAuthToken(ObtainAuthToken):
         return Response({'token': token.key})
 
 class ServicesCreateView(generics.ListAPIView):
-    queryset = Services.objects.all()
+    queryset = Services.objects.prefetch_related('images').all()
     serializer_class = ServicesSerializer
     authentication_classes = []
     permission_classes = [AllowAny]
@@ -78,14 +78,14 @@ class ServicesDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminUser]
 
 class ProductCreateView(generics.ListAPIView):
-    queryset = Product.objects.prefetch_related('offers').all()
+    queryset = Product.objects.prefetch_related('images', 'offers').all()
     serializer_class = ProductSerializer
     authentication_classes = []
     permission_classes = [AllowAny]
 
 
 class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Product.objects.prefetch_related('offers').all()
+    queryset = Product.objects.prefetch_related('images', 'offers').all()
     serializer_class = ProductSerializer
     permission_classes = [IsAdminUser]
 
