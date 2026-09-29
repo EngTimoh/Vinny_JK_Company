@@ -265,7 +265,7 @@ function initializeAutoCarousels() {
 function generateImageSliderHTML(item, type, isPreview = false) {
   const images = item.images || [];
   let allImages = [];
-  const imageHeight = isPreview ? 150 : 180;
+  const imageHeight = isPreview ? 120 : 160;
   if (images.length > 0) {
     allImages = images;
   } else if (item.image) {
@@ -280,7 +280,7 @@ function generateImageSliderHTML(item, type, isPreview = false) {
     if (!!allImages[0].image_type && ['before', 'after'].includes(allImages[0].image_type.toLowerCase())) {
          badgeHtml = `<span class="badge bg-warning text-dark position-absolute m-2" style="top:0; left:0; z-index:5; font-size: 0.8rem; font-weight: bold; text-transform: uppercase;">${allImages[0].image_type}</span>`;
     }
-    return `<div style="position:relative;">${badgeHtml}<img src="${imgUrl}" class="card-img-top" alt="${item.name}" style="height: ${imageHeight}px; object-fit: cover;" onerror="this.src='https://via.placeholder.com/400x250?text=${type}'"></div>`;
+    return `<div style="position:relative;">${badgeHtml}<img src="${imgUrl}" class="card-img-top" alt="${item.name}" style="height: ${imageHeight}px; object-fit: cover;" loading="lazy" decoding="async" onerror="this.src='https://via.placeholder.com/400x250?text=${type}'"></div>`;
   }
 
   const carouselId = `carousel-${type}-${item.id}`;
@@ -293,7 +293,7 @@ function generateImageSliderHTML(item, type, isPreview = false) {
     return `
       <div class="carousel-item ${index === 0 ? 'active' : ''}">
         ${badgeHtml}
-        <img src="${getImageUrl(img.image)}" class="d-block w-100 card-img-top" alt="${item.name}" style="height: ${imageHeight}px; object-fit: cover;" onerror="this.src='https://via.placeholder.com/400x250?text=${type}'">
+        <img src="${getImageUrl(img.image)}" class="d-block w-100 card-img-top" alt="${item.name}" style="height: ${imageHeight}px; object-fit: cover;" loading="lazy" decoding="async" onerror="this.src='https://via.placeholder.com/400x250?text=${type}'">
       </div>
     `;
   }).join('');
@@ -316,7 +316,7 @@ function generateImageSliderHTML(item, type, isPreview = false) {
 }
 
 function renderServiceCard(service, isPreview) {
-  const desc = truncateText(service.description, 100);
+  const desc = truncateText(service.description, 70);
   const imageHTML = generateImageSliderHTML(service, 'service', isPreview);
 
   return `
@@ -353,7 +353,7 @@ window.selectServiceForBooking = function (serviceId, servicePrice) {
 };
 function renderProductCard(product, isPreview) {
   const imageHTML = generateImageSliderHTML(product, 'product', isPreview);
-  const desc = truncateText(product.description, isPreview ? 80 : 120);
+  const desc = truncateText(product.description, isPreview ? 60 : 80);
   const inStock = product.is_available && product.stock_quantity > 0;
   const stockText = inStock ? `${product.stock_quantity} in stock` : 'Out of Stock';
   const stockClass = inStock ? 'in-stock' : 'out-of-stock';
