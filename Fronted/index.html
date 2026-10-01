@@ -37,9 +37,11 @@
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Google Material Icons -->
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" media="print" onload="this.media='all'">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" media="print"
+    onload="this.media='all'">
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"
+    media="print" onload="this.media='all'">
   <!-- Custom CSS -->
   <link rel="stylesheet" href="css/styles.css">
   <!-- Structured Data -->
@@ -175,53 +177,63 @@
     </div>
   </nav>
 
-  <!-- ============ HERO SECTION ============ -->
-  <section class="hero-section" id="home">
+  <!-- ============ TOP SEARCH SECTION (SERVICES & PRODUCTS) ============ -->
+  <section class="top-search-section" id="top-search">
     <div class="container">
-      <div class="row align-items-center">
-        <div class="col-lg-6 hero-content">
-          <h1>Professional <span>Tinting</span>, PPF, Auto spares parts &amp; Car Wrapping</h1>
-          <p>
-            Your trusted partner for car window tinting, PPF, car wrapping, and auto spares.
-            Quality you can rely on.
-          </p>
-          <div class="d-flex flex-wrap gap-3">
-            <a href="services.html" class="btn btn-outline-custom">Our Services</a>
-            <a href="products.html" class="btn btn-outline-custom">View Products</a>
+      <div class="top-search-wrapper mx-auto text-center">
+        <span class="top-search-tag">Directory</span>
+        <h1 class="top-search-title">Search Services &amp; Products</h1>
+        <p class="top-search-subtitle mx-auto">
+          Find window tinting, PPF, wrapping, detailing, and genuine auto spare parts.
+        </p>
+
+        <!-- Scope Switcher: All, Services, Products -->
+        <div class="search-scope-tabs mb-3" role="tablist" aria-label="Search filter">
+          <button type="button" class="scope-tab active" data-scope="all">All</button>
+          <button type="button" class="scope-tab" data-scope="services">Services</button>
+          <button type="button" class="scope-tab" data-scope="products">Products</button>
+        </div>
+
+        <!-- Search Input Bar -->
+        <div class="search-input-box position-relative text-start">
+          <div class="search-input-group d-flex align-items-center">
+            <span class="search-icon-wrapper" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </span>
+            <input type="text" id="unifiedSearchInput" class="form-control unified-search-input"
+              placeholder="Search services or products by name or description..." autocomplete="off" spellcheck="false"
+              aria-label="Search services and products">
+            <button type="button" id="unifiedSearchClear" class="search-clear-btn d-none" aria-label="Clear search">
+              &times;
+            </button>
+            <button type="button" id="unifiedSearchBtn" class="btn btn-search-action">
+              Search
+            </button>
+          </div>
+
+          <!-- Live Results Dropdown -->
+          <div id="unifiedSearchResults" class="search-results-dropdown d-none" role="region" aria-live="polite">
+            <!-- Dynamically populated via JS -->
           </div>
         </div>
 
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ STATS BAR ============ -->
-  <section class="stats-bar">
-    <div class="container">
-      <div class="row">
-        <div class="col-6 col-md-3">
-          <div class="stat-item">
-            <h3>200+</h3>
-            <p>Happy Clients</p>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-item">
-            <h3>300+</h3>
-            <p>Jobs Completed</p>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-item">
-            <h3>50+</h3>
-            <p>Auto Parts</p>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-item">
-            <h3>5+</h3>
-            <p>Years Experience</p>
-          </div>
+        <!-- Popular Quick Search Tags (Live inventory from vinkj.com) -->
+        <div class="popular-search-tags d-flex flex-wrap align-items-center justify-content-center gap-2 mt-3">
+          <span class="popular-tags-label">Popular:</span>
+          <button type="button" class="popular-tag-btn" data-query="Tint">Tint</button>
+          <button type="button" class="popular-tag-btn" data-query="PPF">PPF</button>
+          <button type="button" class="popular-tag-btn" data-query="Wrapping">Wrapping</button>
+          <button type="button" class="popular-tag-btn" data-query="Brake Pads">Brake Pads</button>
+          <button type="button" class="popular-tag-btn" data-query="Android Radio">Android Radio</button>
+          <button type="button" class="popular-tag-btn" data-query="LED Headlights">Headlights</button>
+          <button type="button" class="popular-tag-btn" data-query="Spark Plugs">Spark Plugs</button>
+          <button type="button" class="popular-tag-btn" data-query="Bushes">Bushes</button>
+          <button type="button" class="popular-tag-btn" data-query="Coolant">Coolant</button>
+          <button type="button" class="popular-tag-btn" data-query="Filter">Filters</button>
         </div>
       </div>
     </div>
@@ -258,9 +270,6 @@
             <li><span class="material-icons">check_circle</span> Paint Protection Film (PPF)</li>
             <li><span class="material-icons">check_circle</span> Car Wrapping</li>
             <li><span class="material-icons">check_circle</span> Auto Spare Parts</li>
-            <li><span class="material-icons">check_circle</span> Online Booking &amp; Ordering</li>
-            <li><span class="material-icons">check_circle</span> Competitive Pricing</li>
-            <li><span class="material-icons">check_circle</span> Expert Advice &amp; Support</li>
           </ul>
           <a href="about.html" class="btn btn-dark-custom">Learn More About Us</a>
         </div>
@@ -287,7 +296,9 @@
         </div>
         <noscript>
           <div class="col-12">
-            <p>Our services include professional <strong>car window tinting</strong>, <strong>Paint Protection Film (PPF) installation</strong>, <strong>car wrapping</strong>, and <strong>auto detailing</strong> in Nairobi. <a href="services.html">View all services and book online</a>.</p>
+            <p>Our services include professional <strong>car window tinting</strong>, <strong>Paint Protection Film
+                (PPF) installation</strong>, <strong>car wrapping</strong>, and <strong>auto detailing</strong> in
+              Nairobi. <a href="services.html">View all services and book online</a>.</p>
           </div>
         </noscript>
       </div>
@@ -297,53 +308,6 @@
     </div>
   </section>
 
-  <!-- ============ WHY CHOOSE US ============ -->
-  <section class="section-padding" id="why-us">
-    <div class="container">
-      <div class="text-center mb-5">
-        <p class="text-secondary-custom fw-semibold mb-1">WHY CHOOSE US</p>
-        <h2 class="section-title">What Sets Us Apart</h2>
-      </div>
-      <div class="row g-4">
-        <div class="col-md-6 col-lg-3">
-          <div class="feature-box">
-            <div class="feature-icon">
-              <span class="material-icons">verified</span>
-            </div>
-            <h5>Quality Products</h5>
-            <p>We use only premium-quality tint films, PPF, and wrapping materials for lasting results.</p>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-          <div class="feature-box">
-            <div class="feature-icon">
-              <span class="material-icons">engineering</span>
-            </div>
-            <h5>Skilled Technicians</h5>
-            <p>Our experienced team ensures precision work and professional installation every time.</p>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-          <div class="feature-box">
-            <div class="feature-icon">
-              <span class="material-icons">schedule</span>
-            </div>
-            <h5>Quick Turnaround</h5>
-            <p>Efficient service delivery so you're back on the road in no time.</p>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-          <div class="feature-box">
-            <div class="feature-icon">
-              <span class="material-icons">local_shipping</span>
-            </div>
-            <h5>Auto Detailing</h5>
-            <p>Professional auto detailing to keep your vehicle showroom-fresh inside and out.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <!-- ============ FEATURED PRODUCTS ============ -->
   <section class="section-padding bg-light-custom" id="products-preview">
@@ -364,7 +328,10 @@
         </div>
         <noscript>
           <div class="col-12">
-            <p>Shop premium <strong>tinting films</strong>, <strong>PPF sheets</strong>, <strong>wrapping materials</strong>, <strong>auto spare parts</strong>, <strong>electrical components</strong>, and <strong>lubricants</strong> at VIN-KJ AUTO SERVICES. <a href="products.html">Browse all products</a>.</p>
+            <p>Shop premium <strong>tinting films</strong>, <strong>PPF sheets</strong>, <strong>wrapping
+                materials</strong>, <strong>auto spare parts</strong>, <strong>electrical components</strong>, and
+              <strong>lubricants</strong> at VIN-KJ AUTO SERVICES. <a href="products.html">Browse all products</a>.
+            </p>
           </div>
         </noscript>
       </div>

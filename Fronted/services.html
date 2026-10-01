@@ -150,17 +150,45 @@
   <section class="section-padding" id="services-list">
     <div class="container">
       <!-- Search / Filter Bar -->
-      <div class="filter-bar d-flex flex-wrap align-items-center gap-3 mb-4">
-        <div class="flex-grow-1">
-          <input type="text" class="form-control" id="serviceSearch" placeholder="Search services by name or description...">
+      <div class="search-filter-wrapper mb-4">
+        <div class="d-flex flex-wrap align-items-center gap-3">
+          <div class="search-input-box position-relative flex-grow-1">
+            <div class="search-input-group d-flex align-items-center">
+              <span class="search-icon-wrapper" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+              </span>
+              <input type="text" class="form-control unified-search-input" id="serviceSearch"
+                placeholder="Search services by name or description..." autocomplete="off" spellcheck="false"
+                aria-label="Search services">
+              <button type="button" id="serviceSearchClear" class="search-clear-btn d-none" aria-label="Clear search">
+                &times;
+              </button>
+              <button type="button" id="serviceSearchBtn" class="btn btn-search-action">
+                Search
+              </button>
+            </div>
+          </div>
+          <div class="search-select-wrapper">
+            <select class="form-select custom-theme-select" id="serviceSort" aria-label="Sort services">
+              <option value="all">All Services</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="name-asc">Name: A to Z</option>
+            </select>
+          </div>
         </div>
-        <div>
-          <select class="form-select" id="serviceSort">
-            <option value="all">All Services</option>
-            <option value="price-asc">Price: Low to High</option>
-            <option value="price-desc">Price: High to Low</option>
-            <option value="name-asc">Name: A to Z</option>
-          </select>
+        <!-- Quick Tags for Services from vinkj.com -->
+        <div class="popular-search-tags d-flex flex-wrap align-items-center gap-2 mt-3">
+          <span class="popular-tags-label">Popular:</span>
+          <button type="button" class="popular-tag-btn" data-query="Tint">Tint</button>
+          <button type="button" class="popular-tag-btn" data-query="PPF">PPF</button>
+          <button type="button" class="popular-tag-btn" data-query="Wrapping">Wrapping</button>
+          <button type="button" class="popular-tag-btn" data-query="Android Radio">Android Radio</button>
+          <button type="button" class="popular-tag-btn" data-query="Chameleon">Chameleon Tint</button>
+          <button type="button" class="popular-tag-btn" data-query="Green">Green Wrap</button>
         </div>
       </div>
 

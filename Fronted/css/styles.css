@@ -2218,3 +2218,423 @@ html {
 .carousel-fade .carousel-item {
   transition: opacity 1.2s ease-in-out;
 }
+
+/* ========================================================
+   Top Unified Search Section (Services & Products)
+   Clean, solid colors, no gradients, minimal iconography
+   ======================================================== */
+.top-search-section {
+  position: relative;
+  background-color: var(--primary-dark);
+  border-bottom: 1px solid var(--border-color);
+  padding-top: 105px;
+  padding-bottom: 45px;
+}
+
+.top-search-wrapper {
+  max-width: 760px;
+}
+
+.top-search-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--secondary);
+  margin-bottom: 0.5rem;
+}
+
+.top-search-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-light);
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+
+.top-search-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  max-width: 520px;
+  margin-bottom: 1.5rem;
+}
+
+/* Scope Pills Switcher - Solid colors, no gradients */
+.search-scope-tabs {
+  display: inline-flex;
+  background-color: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: 30px;
+  padding: 4px;
+}
+
+.scope-tab {
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  padding: 6px 20px;
+  border-radius: 24px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.scope-tab:hover {
+  color: var(--text-light);
+}
+
+.scope-tab.active {
+  background-color: var(--secondary);
+  color: var(--primary-dark);
+  font-weight: 700;
+}
+
+/* Search Input Box */
+.search-input-box {
+  position: relative;
+  width: 100%;
+}
+
+.search-input-group {
+  position: relative;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 6px 8px 6px 16px;
+  transition: var(--transition);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.search-input-group:focus-within {
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 3px rgba(232, 168, 37, 0.18), 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.search-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.search-input-group:focus-within .search-icon-wrapper {
+  color: var(--secondary);
+}
+
+.unified-search-input {
+  background: transparent !important;
+  border: none !important;
+  color: var(--text-light) !important;
+  font-size: 1rem !important;
+  font-weight: 400 !important;
+  padding: 8px 0 !important;
+  box-shadow: none !important;
+  width: 100%;
+}
+
+.unified-search-input::placeholder {
+  color: rgba(160, 174, 192, 0.65);
+}
+
+.unified-search-input:focus {
+  outline: none !important;
+}
+
+.search-clear-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.4rem;
+  line-height: 1;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.search-clear-btn:hover {
+  color: var(--text-light);
+}
+
+.btn-search-action {
+  background-color: var(--secondary);
+  color: var(--primary-dark);
+  font-weight: 700;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 24px;
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.btn-search-action:hover {
+  background-color: var(--secondary-dark);
+  color: var(--primary-dark);
+}
+
+/* Popular Search Tags */
+.popular-tags-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.popular-tag-btn {
+  background-color: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.popular-tag-btn:hover {
+  color: var(--secondary);
+  border-color: var(--secondary);
+  background-color: rgba(232, 168, 37, 0.08);
+}
+
+/* Live Search Results Dropdown */
+.search-results-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background-color: var(--primary-dark);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55);
+  z-index: 1050;
+  max-height: 460px;
+  overflow-y: auto;
+  padding: 10px 0;
+  text-align: left;
+}
+
+.search-results-group {
+  padding: 6px 0;
+}
+
+.search-group-header {
+  padding: 8px 16px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--secondary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.search-group-header .group-count {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: none;
+  font-weight: 500;
+  letter-spacing: normal;
+}
+
+.search-result-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  color: var(--text-light);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background-color 0.15s ease;
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+.search-result-item:hover,
+.search-result-item.highlighted {
+  background-color: var(--bg-card);
+  color: var(--text-light);
+}
+
+.search-result-item .result-info {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.search-result-item .result-title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-light);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.search-result-item .result-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-result-item .result-meta {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.search-result-item .result-price {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--secondary);
+}
+
+.result-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin-top: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.result-badge.badge-service {
+  background-color: rgba(44, 140, 255, 0.15);
+  color: #63b3ed;
+  border: 1px solid rgba(44, 140, 255, 0.25);
+}
+
+.result-badge.badge-stock {
+  background-color: rgba(56, 161, 105, 0.15);
+  color: #48bb78;
+  border: 1px solid rgba(56, 161, 105, 0.25);
+}
+
+.result-badge.badge-out {
+  background-color: rgba(229, 62, 62, 0.15);
+  color: #f56565;
+  border: 1px solid rgba(229, 62, 62, 0.25);
+}
+
+.search-more-link {
+  padding: 8px 16px;
+  font-size: 0.82rem;
+  text-align: right;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.search-more-link a {
+  color: var(--secondary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.search-more-link a:hover {
+  text-decoration: underline;
+}
+
+.search-dropdown-footer {
+  padding: 10px 16px 4px;
+  border-top: 1px solid var(--border-color);
+  margin-top: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+}
+
+.search-dropdown-footer a {
+  color: var(--secondary);
+  font-weight: 600;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.search-dropdown-footer a:hover {
+  color: var(--secondary-dark);
+  text-decoration: underline;
+}
+
+.search-empty-state {
+  padding: 24px 20px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.search-empty-state strong {
+  color: var(--text-light);
+}
+
+@media (max-width: 575.98px) {
+  .top-search-section {
+    padding-top: 90px;
+    padding-bottom: 35px;
+  }
+
+  .top-search-title {
+    font-size: 1.45rem;
+  }
+
+  .search-input-group {
+    padding: 4px 6px 4px 12px;
+  }
+
+  .btn-search-action {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+  }
+
+  .scope-tab {
+    padding: 5px 14px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Custom Theme Select for Services & Products Search Filter */
+.custom-theme-select {
+  background-color: var(--bg-card) !important;
+  color: var(--text-light) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 12px !important;
+  padding: 10px 36px 10px 16px !important;
+  font-size: 0.92rem !important;
+  font-weight: 500 !important;
+  height: 100% !important;
+  min-height: 48px;
+  cursor: pointer;
+  transition: var(--transition);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23a0aec0' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 14px 10px !important;
+}
+
+.custom-theme-select:focus {
+  border-color: var(--secondary) !important;
+  box-shadow: 0 0 0 3px rgba(232, 168, 37, 0.18) !important;
+  outline: none !important;
+}
+
+.custom-theme-select option {
+  background-color: var(--primary-dark);
+  color: var(--text-light);
+}
+
+.search-filter-wrapper .popular-search-tags {
+  margin-top: 10px;
+}
+
