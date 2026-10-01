@@ -2603,3 +2603,38 @@ html {
     font-size: 0.8rem;
   }
 }
+
+/* Custom Theme Select for Services & Products Search Filter */
+.custom-theme-select {
+  background-color: var(--bg-card) !important;
+  color: var(--text-light) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 12px !important;
+  padding: 10px 36px 10px 16px !important;
+  font-size: 0.92rem !important;
+  font-weight: 500 !important;
+  height: 100% !important;
+  min-height: 48px;
+  cursor: pointer;
+  transition: var(--transition);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23a0aec0' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 14px 10px !important;
+}
+
+.custom-theme-select:focus {
+  border-color: var(--secondary) !important;
+  box-shadow: 0 0 0 3px rgba(232, 168, 37, 0.18) !important;
+  outline: none !important;
+}
+
+.custom-theme-select option {
+  background-color: var(--primary-dark);
+  color: var(--text-light);
+}
+
+.search-filter-wrapper .popular-search-tags {
+  margin-top: 10px;
+}
+

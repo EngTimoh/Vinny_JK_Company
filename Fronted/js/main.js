@@ -647,12 +647,46 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const searchInput = document.getElementById('productSearch');
     const filterSelect = document.getElementById('productFilter');
-    if (searchInput) searchInput.addEventListener('input', filterAndRenderProducts);
+    const searchClear = document.getElementById('productSearchClear');
+    const searchBtn = document.getElementById('productSearchBtn');
+
+    if (searchInput) {
+      searchInput.addEventListener('input', () => {
+        if (searchClear) searchClear.classList.toggle('d-none', !searchInput.value.trim());
+        filterAndRenderProducts();
+      });
+      if (searchClear) {
+        searchClear.addEventListener('click', () => {
+          searchInput.value = '';
+          searchClear.classList.add('d-none');
+          filterAndRenderProducts();
+          searchInput.focus();
+        });
+      }
+      if (searchBtn) {
+        searchBtn.addEventListener('click', filterAndRenderProducts);
+      }
+    }
     if (filterSelect) filterSelect.addEventListener('change', filterAndRenderProducts);
+
+    // Popular tags on products page
+    const productTags = document.querySelectorAll('#productsContainer ~ * .popular-tag-btn, .search-filter-wrapper .popular-tag-btn');
+    if (searchInput) {
+      document.querySelectorAll('.popular-tag-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          if (document.getElementById('productsContainer')) {
+            searchInput.value = btn.dataset.query || btn.textContent.trim();
+            if (searchClear) searchClear.classList.remove('d-none');
+            filterAndRenderProducts();
+          }
+        });
+      });
+    }
 
     const productSearchParam = urlParams.get('search');
     if (productSearchParam && searchInput) {
       searchInput.value = productSearchParam;
+      if (searchClear) searchClear.classList.remove('d-none');
       filterAndRenderProducts();
     }
 
@@ -684,12 +718,42 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Wire up Services search and sorting
     const serviceSearchInput = document.getElementById('serviceSearch');
     const serviceSortSelect = document.getElementById('serviceSort');
-    if (serviceSearchInput) serviceSearchInput.addEventListener('input', filterAndRenderServices);
+    const serviceSearchClear = document.getElementById('serviceSearchClear');
+    const serviceSearchBtn = document.getElementById('serviceSearchBtn');
+
+    if (serviceSearchInput) {
+      serviceSearchInput.addEventListener('input', () => {
+        if (serviceSearchClear) serviceSearchClear.classList.toggle('d-none', !serviceSearchInput.value.trim());
+        filterAndRenderServices();
+      });
+      if (serviceSearchClear) {
+        serviceSearchClear.addEventListener('click', () => {
+          serviceSearchInput.value = '';
+          serviceSearchClear.classList.add('d-none');
+          filterAndRenderServices();
+          serviceSearchInput.focus();
+        });
+      }
+      if (serviceSearchBtn) {
+        serviceSearchBtn.addEventListener('click', filterAndRenderServices);
+      }
+      // Popular tags on services page
+      document.querySelectorAll('.popular-tag-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (document.getElementById('servicesContainer')) {
+            serviceSearchInput.value = btn.dataset.query || btn.textContent.trim();
+            if (serviceSearchClear) serviceSearchClear.classList.remove('d-none');
+            filterAndRenderServices();
+          }
+        });
+      });
+    }
     if (serviceSortSelect) serviceSortSelect.addEventListener('change', filterAndRenderServices);
 
     const serviceSearchParam = urlParams.get('search');
     if (serviceSearchParam && serviceSearchInput) {
       serviceSearchInput.value = serviceSearchParam;
+      if (serviceSearchClear) serviceSearchClear.classList.remove('d-none');
       filterAndRenderServices();
     }
 
@@ -774,6 +838,44 @@ document.addEventListener('DOMContentLoaded', async () => {
   initializeAutoCarousels();
 });
 
+// ---- Intelligent Matcher with Automotive Synonyms ----
+function itemMatchesQuery(item, term) {
+  if (!item || !term) return false;
+  const name = (item.name || '').toLowerCase();
+  const desc = (item.description || '').toLowerCase();
+  const cat = (item.category || '').toLowerCase();
+  const fullText = `${name} ${desc} ${cat}`;
+
+  if (fullText.includes(term)) return true;
+
+  // Multi-word search (e.g., "Brake Pads", "Spark Plugs", "LED Headlights")
+  const words = term.split(/\s+/).filter(w => w.length > 1);
+  if (words.length > 1) {
+    if (words.every(w => fullText.includes(w))) return true;
+
+    // Automotive domain synonyms
+    if (term.includes('brake') || term.includes('pad')) {
+      if (fullText.includes('pad') || fullText.includes('brake') || fullText.includes('lining')) return true;
+    }
+    if (term.includes('spark') || term.includes('plug')) {
+      if (fullText.includes('plug') || fullText.includes('spark')) return true;
+    }
+    if (term.includes('headlight') || term.includes('light')) {
+      if (fullText.includes('headlight') || fullText.includes('led')) return true;
+    }
+  }
+
+  // Singular / plural / stemming checks
+  if ((term === 'filter' || term === 'filters') && fullText.includes('filter')) return true;
+  if ((term === 'bush' || term === 'bushes') && (fullText.includes('bush') || fullText.includes('bushes'))) return true;
+  if (term === 'tint' && fullText.includes('tint')) return true;
+  if (term === 'ppf' && (fullText.includes('ppf') || fullText.includes('protection film'))) return true;
+  if ((term === 'wrap' || term === 'wrapping') && (fullText.includes('wrap') || fullText.includes('wrapping'))) return true;
+  if (term === 'wd-40' && fullText.includes('wd-40')) return true;
+
+  return false;
+}
+
 // ---- Services Search & Filter ----
 function filterAndRenderServices() {
   const container = document.getElementById('servicesContainer');
@@ -785,12 +887,9 @@ function filterAndRenderServices() {
 
   let filtered = [...allServices];
 
-  // Text search (name + description)
+  // Text search (name + description + synonyms)
   if (searchTerm) {
-    filtered = filtered.filter(s =>
-      (s.name || '').toLowerCase().includes(searchTerm) ||
-      (s.description || '').toLowerCase().includes(searchTerm)
-    );
+    filtered = filtered.filter(s => itemMatchesQuery(s, searchTerm));
   }
 
   // Sorting
@@ -842,12 +941,9 @@ function filterAndRenderProducts() {
     filtered = filtered.filter(p => p.category === filterValue || p.category === catFilter);
   }
 
-  // Text search (name + description)
+  // Text search (name + description + synonyms)
   if (searchTerm) {
-    filtered = filtered.filter(p =>
-      (p.name || '').toLowerCase().includes(searchTerm) ||
-      (p.description || '').toLowerCase().includes(searchTerm)
-    );
+    filtered = filtered.filter(p => itemMatchesQuery(p, searchTerm));
   }
 
   if (filtered.length > 0) {
@@ -950,19 +1046,12 @@ function initUnifiedSearchBar() {
 
     // Filter matching Services
     const matchServices = (currentScope === 'all' || currentScope === 'services')
-      ? allServices.filter(s =>
-          (s.name && s.name.toLowerCase().includes(term)) ||
-          (s.description && s.description.toLowerCase().includes(term))
-        )
+      ? allServices.filter(s => itemMatchesQuery(s, term))
       : [];
 
     // Filter matching Products
     const matchProducts = (currentScope === 'all' || currentScope === 'products')
-      ? allProducts.filter(p =>
-          (p.name && p.name.toLowerCase().includes(term)) ||
-          (p.description && p.description.toLowerCase().includes(term)) ||
-          (p.category && p.category.toLowerCase().includes(term))
-        )
+      ? allProducts.filter(p => itemMatchesQuery(p, term))
       : [];
 
     activeHighlightedIndex = -1;
