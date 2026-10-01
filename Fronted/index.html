@@ -153,6 +153,13 @@
     ]
   }
   </script>
+  <!-- Pre-render Theme Check (Eliminates FOUC) -->
+  <script>
+    (function () {
+      var savedTheme = localStorage.getItem('vinkj_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+  </script>
 </head>
 
 <body>
@@ -162,9 +169,27 @@
     <div class="container">
       <a class="navbar-brand" href="index.html"><img src="favicon.ico" alt="VIN-KJ Logo" class="brand-icon">VIN-KJ
         <span>AUTO</span> SERVICES</a>
-      <button class="navbar-toggler" type="button" onclick="toggleMobileNav()">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+      <div class="d-flex align-items-center gap-2 d-lg-none">
+        <button class="theme-toggle-btn" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+          <svg class="theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <svg class="theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+        <button class="navbar-toggler" type="button" onclick="toggleMobileNav()">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
       <div class="navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto align-items-lg-center">
           <li class="nav-item"><a class="nav-link active" href="index.html">Home</a></li>
@@ -172,6 +197,24 @@
           <li class="nav-item"><a class="nav-link" href="products.html">Products</a></li>
           <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
           <li class="nav-item nav-cta ms-lg-2"><a class="nav-link" href="services.html#booking">Book Now</a></li>
+          <li class="nav-item ms-lg-3 d-none d-lg-block">
+            <button class="theme-toggle-btn" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+              <svg class="theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+              <svg class="theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+            </button>
+          </li>
         </ul>
       </div>
     </div>
@@ -233,39 +276,60 @@
     </div>
   </section>
 
-  <!-- ============ ABOUT PREVIEW ============ -->
-  <section class="about-section section-padding" id="about-preview">
+  <!-- ============ ABOUT PREVIEW (Sleek & Minimalist) ============ -->
+  <section class="about-preview-section" id="about-preview">
     <div class="container">
-      <div class="row align-items-center g-5">
-        <div class="col-lg-6">
-          <div class="about-img-wrapper">
+      <div class="row align-items-center g-3 g-md-4">
+        <div class="col-12 col-md-5 col-lg-5">
+          <div class="about-preview-img-wrapper">
             <div id="aboutPreviewCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel"
-              data-bs-interval="3000">
+              data-bs-interval="3500">
               <div class="carousel-inner" id="aboutPreviewCarouselInner">
-                <div class="carousel-item active">
+                <div class="carousel-item active" style="height: 100%;">
                   <img id="aboutPreviewImg" src="" class="d-block w-100" alt="About VIN-KJ AUTO SERVICES"
-                    style="background: var(--bg-card);">
+                    style="background: var(--bg-card); height: 100%; object-fit: cover;">
                 </div>
               </div>
             </div>
-            <div class="about-badge" style="z-index: 10;">Trusted Since Day One</div>
+            <div class="about-preview-badge">
+              <span class="about-preview-badge-dot"></span>
+              <span>Trusted Since Day One</span>
+            </div>
           </div>
         </div>
-        <div class="col-lg-6 about-text">
-          <p class="text-secondary-custom fw-semibold mb-1">WHO WE ARE</p>
-          <h2>Your One-Stop Shop for Vehicle Enhancement</h2>
-          <p>
-            VIN-KJ AUTO SERVICES is a leading provider of car window tinting, PPF,
-            car wrapping, and auto spare parts. We combine expertise with quality materials
-            to deliver exceptional results.
-          </p>
-          <ul class="about-features">
-            <li><span class="material-icons">check_circle</span> Car Window Tinting</li>
-            <li><span class="material-icons">check_circle</span> Paint Protection Film (PPF)</li>
-            <li><span class="material-icons">check_circle</span> Car Wrapping</li>
-            <li><span class="material-icons">check_circle</span> Auto Spare Parts</li>
-          </ul>
-          <a href="about.html" class="btn btn-dark-custom">Learn More About Us</a>
+        <div class="col-12 col-md-7 col-lg-7">
+          <div class="about-preview-content">
+            <span class="about-preview-tag">WHO WE ARE</span>
+            <h2 class="about-preview-title">Your One-Stop Shop for Vehicle Enhancement</h2>
+            <p class="about-preview-desc">
+              VIN-KJ AUTO SERVICES is a leading provider of car window tinting, PPF,
+              car wrapping, and auto spare parts — delivering exceptional craftsmanship with quality materials.
+            </p>
+            <div class="about-preview-features">
+              <div class="about-feature-chip">
+                <span class="material-icons">check_circle</span>
+                <span>Window Tinting</span>
+              </div>
+              <div class="about-feature-chip">
+                <span class="material-icons">check_circle</span>
+                <span>PPF Protection</span>
+              </div>
+              <div class="about-feature-chip">
+                <span class="material-icons">check_circle</span>
+                <span>Car Wrapping</span>
+              </div>
+              <div class="about-feature-chip">
+                <span class="material-icons">check_circle</span>
+                <span>Auto Spare Parts</span>
+              </div>
+            </div>
+            <div>
+              <a href="about.html" class="btn-about-preview">
+                <span>Learn More About Us</span>
+                <span class="material-icons">arrow_forward</span>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
