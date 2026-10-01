@@ -314,7 +314,7 @@ function initializeAutoCarousels() {
   });
 }
 
-function generateImageSliderHTML(item, type, isPreview = false) {
+function generateImageSliderHTML(item, type, isPreview = false, extraOverlayHtml = '') {
   const images = item.images || [];
   let allImages = [];
   if (images.length > 0) {
@@ -322,14 +322,14 @@ function generateImageSliderHTML(item, type, isPreview = false) {
   } else if (item.image) {
     allImages = [{ image: item.image, image_type: 'general' }];
   } else {
-    allImages = [{ image: 'https://via.placeholder.com/400x250?text=' + (type === 'service' ? 'Service' : 'Product'), image_type: 'general' }];
+    allImages = [{ image: 'https://via.placeholder.com/400x300?text=' + (type === 'service' ? 'Service' : 'Product'), image_type: 'general' }];
   }
 
   const renderBadge = (iType) => {
     if (!iType) return '';
     const norm = iType.toLowerCase();
     if (norm === 'before' || norm === 'after') {
-      return `<span class="car-badge-type ${norm === 'after' ? 'car-badge-after' : 'car-badge-before'}">${norm}</span>`;
+      return `<div class="item-card-badges"><span class="item-badge car-badge-type ${norm === 'after' ? 'car-badge-after' : 'car-badge-before'}">${norm}</span></div>`;
     }
     return '';
   };
@@ -338,9 +338,10 @@ function generateImageSliderHTML(item, type, isPreview = false) {
     const imgUrl = getImageUrl(allImages[0].image);
     const badgeHtml = renderBadge(allImages[0].image_type);
     return `
-      <div class="card-img-wrapper">
+      <div class="card-img-wrapper item-card-media">
         ${badgeHtml}
-        <img src="${imgUrl}" class="card-img-top" alt="${item.name || ''}" loading="lazy" decoding="async" onerror="this.src='https://via.placeholder.com/400x250?text=${type}'">
+        ${extraOverlayHtml}
+        <img src="${imgUrl}" class="card-img-top" alt="${item.name || ''}" loading="lazy" decoding="async" onerror="this.src='https://via.placeholder.com/400x300?text=${type}'">
       </div>
     `;
   }
@@ -351,13 +352,14 @@ function generateImageSliderHTML(item, type, isPreview = false) {
     return `
       <div class="carousel-item ${index === 0 ? 'active' : ''} h-100">
         ${badgeHtml}
-        <img src="${getImageUrl(img.image)}" class="d-block w-100 h-100 card-img-top" alt="${item.name || ''}" loading="lazy" decoding="async" onerror="this.src='https://via.placeholder.com/400x250?text=${type}'">
+        <img src="${getImageUrl(img.image)}" class="d-block w-100 h-100 card-img-top" alt="${item.name || ''}" loading="lazy" decoding="async" onerror="this.src='https://via.placeholder.com/400x300?text=${type}'">
       </div>
     `;
   }).join('');
 
   return `
-    <div id="${carouselId}" class="carousel slide carousel-fade auto-start-carousel card-img-wrapper" data-bs-ride="carousel" data-bs-interval="5000" onclick="event.stopPropagation();">
+    <div id="${carouselId}" class="carousel slide carousel-fade auto-start-carousel card-img-wrapper item-card-media" data-bs-ride="carousel" data-bs-interval="5000" onclick="event.stopPropagation();">
+      ${extraOverlayHtml}
       <div class="carousel-inner h-100">
         ${itemsHtml}
       </div>
@@ -373,20 +375,22 @@ function generateImageSliderHTML(item, type, isPreview = false) {
 
 function renderServiceCard(service, isPreview) {
   const formattedTitle = formatCardTitle(service.name);
-  const formattedDesc = truncateText(service.description, isPreview ? 80 : 120);
   const imageHTML = generateImageSliderHTML(service, 'service', isPreview);
+  const subtitle = service.category || 'Auto Styling & Detailing';
 
   return `
-    <div class="col-md-6 col-lg-4">
-      <div class="card-custom ${isPreview ? 'card-custom-preview' : ''}">
+    <div class="col-6 col-md-4 col-lg-3">
+      <div class="card-custom item-card ${isPreview ? 'card-custom-preview' : ''}">
         ${imageHTML}
-        <div class="card-body">
-          <h5 class="card-title" title="${service.name || ''}">${formattedTitle}</h5>
-          <p class="card-text">${formattedDesc}</p>
-          <div class="card-price">${formatPrice(service.price)}</div>
+        <div class="card-body item-card-info">
+          <h5 class="card-title item-card-title" title="${service.name || ''}">${formattedTitle}</h5>
+          <div class="item-card-subtitle">${subtitle}</div>
+          <div class="card-price item-card-price">
+            <span class="item-price-current">${formatPrice(service.price)}</span>
+          </div>
         </div>
-        <div class="card-footer-custom">
-          <button class="btn btn-primary-custom w-100" onclick="openServiceDetail(${service.id})">
+        <div class="card-footer-custom item-card-actions">
+          <button class="btn btn-primary-custom btn-card-action w-100" onclick="openServiceDetail(${service.id})">
             View Details
           </button>
         </div>
@@ -411,52 +415,69 @@ window.selectServiceForBooking = function (serviceId, servicePrice) {
 
 function renderProductCard(product, isPreview) {
   const formattedTitle = formatCardTitle(product.name);
-  const formattedDesc = truncateText(product.description, isPreview ? 80 : 120);
-  const imageHTML = generateImageSliderHTML(product, 'product', isPreview);
   const inStock = product.is_available && product.stock_quantity > 0;
-  const stockText = inStock ? `${product.stock_quantity} in stock` : 'Out of Stock';
+  const stockText = inStock ? 'In Stock' : 'Out of Stock';
   const stockClass = inStock ? 'in-stock' : 'out-of-stock';
+
+  // Normalize category name for subtitle
+  let catName = product.category;
+  if (catName === '1') catName = 'Spare Parts';
+  else if (catName === '2') catName = 'Electrical';
+  else if (catName === '3') catName = 'Service Parts';
+  else if (catName === '4') catName = 'Lubricants';
+  else if (!catName || /^\d+$/.test(catName)) catName = 'Auto Parts';
 
   // Discount handling
   const hasDiscount = product.discount_percentage && parseFloat(product.discount_percentage) > 0;
-  const discountBadge = hasDiscount
-    ? `<span class="discount-badge">${Math.round(product.discount_percentage)}% OFF</span>`
-    : '';
+  const discountVal = Math.round(product.discount_percentage);
+
+  // Micro badges overlaying the image
+  let badges = [];
+  if (hasDiscount) {
+    badges.push(`<span class="item-badge item-badge-discount">-${discountVal}%</span>`);
+  }
+  if (product.is_featured || (hasDiscount && discountVal >= 20)) {
+    badges.push(`<span class="item-badge item-badge-hot">HOT</span>`);
+  }
+
+  const badgesHtml = badges.length > 0 ? `<div class="item-card-badges">${badges.join('')}</div>` : '';
+  const stockBadgeHtml = `<span class="item-badge-stock ${stockClass}">${stockText}</span>`;
+  const extraOverlayHtml = `${badgesHtml}${stockBadgeHtml}`;
+
+  const imageHTML = generateImageSliderHTML(product, 'product', isPreview, extraOverlayHtml);
 
   const priceHtml = hasDiscount
-    ? `<span class="price-original">${formatPrice(product.price)}</span>
-       <span class="price-discounted">${formatPrice(product.discounted_price)}</span>`
-    : `<div class="card-price mb-0">${formatPrice(product.price)}</div>`;
+    ? `<span class="item-price-old price-original">${formatPrice(product.price)}</span>
+       <span class="item-price-current item-price-discounted price-discounted">${formatPrice(product.discounted_price)}</span>`
+    : `<span class="item-price-current card-price mb-0">${formatPrice(product.price)}</span>`;
 
   const safeName = (product.name || '').replace(/'/g, "\\'");
   const effectivePrice = hasDiscount ? product.discounted_price : product.price;
 
   const quickAddBtn = inStock
-    ? `<button class="btn btn-outline-custom btn-sm d-flex align-items-center justify-content-center gap-1"
+    ? `<button class="btn btn-card-cart"
                onclick="event.stopPropagation(); CartManager.add({id: ${product.id}, name: '${safeName}', price: ${effectivePrice}, image: '${product.image || ''}', stock: ${product.stock_quantity}}, this)"
                title="Quick Add to Cart">
-         <span class="material-icons" style="font-size:1rem;">add_shopping_cart</span>
+         <span class="material-icons">add_shopping_cart</span>
        </button>`
     : '';
 
   return `
-    <div class="${isPreview ? 'col-sm-6 col-lg-4' : 'col-sm-6 col-lg-4 col-xl-3'}">
-      <div class="card-custom ${isPreview ? 'card-custom-preview' : ''}">
-        <div class="position-relative">
-          ${discountBadge}
-          <span class="card-stock-badge ${stockClass}">${stockText}</span>
-          ${imageHTML}
+    <div class="col-6 col-md-4 col-lg-3">
+      <div class="card-custom item-card ${isPreview ? 'card-custom-preview' : ''}">
+        ${imageHTML}
+        <div class="card-body item-card-info">
+          <h5 class="card-title item-card-title" title="${product.name || ''}">${formattedTitle}</h5>
+          <div class="item-card-subtitle">${catName}</div>
+          <div class="card-price item-card-price">${priceHtml}</div>
         </div>
-        <div class="card-body">
-          <h5 class="card-title" title="${product.name || ''}">${formattedTitle}</h5>
-          <p class="card-text">${formattedDesc}</p>
-          <div class="d-flex align-items-center gap-2 mb-2">${priceHtml}</div>
-        </div>
-        <div class="card-footer-custom d-flex gap-2">
-          <button class="btn btn-primary-custom flex-grow-1" onclick="openProductDetail(${product.id})">
-            View Details
-          </button>
-          ${quickAddBtn}
+        <div class="card-footer-custom item-card-actions">
+          <div class="d-flex gap-1">
+            <button class="btn btn-primary-custom btn-card-action flex-grow-1" onclick="openProductDetail(${product.id})">
+              View Details
+            </button>
+            ${quickAddBtn}
+          </div>
         </div>
       </div>
     </div>
@@ -615,7 +636,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         filterAndRenderProducts();
       }
       if (productsPreview) {
-        productsPreview.innerHTML = products.filter(p => p.is_available).slice(0, 3).map(p => renderProductCard(p, true)).join('');
+        productsPreview.innerHTML = products.filter(p => p.is_available).slice(0, 4).map(p => renderProductCard(p, true)).join('');
       }
       if (noProducts) noProducts.classList.add('d-none');
     } else {
@@ -645,7 +666,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         filterAndRenderServices();
       }
       if (servicesPreview) {
-        servicesPreview.innerHTML = services.slice(0, 3).map(s => renderServiceCard(s, true)).join('');
+        servicesPreview.innerHTML = services.slice(0, 4).map(s => renderServiceCard(s, true)).join('');
       }
       if (noServices) noServices.classList.add('d-none');
     } else {
