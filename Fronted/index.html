@@ -280,6 +280,31 @@
     </div>
   </section>
 
+  <!-- ============ INSTANT SEARCH RESULTS (Appears directly below search bar) ============ -->
+  <section class="search-feedback-section d-none" id="searchFeedbackSection">
+    <div class="container">
+      <div class="search-feedback-card">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 pb-2 border-bottom">
+          <div class="d-flex align-items-center gap-2">
+            <span class="search-feedback-icon material-icons">search</span>
+            <div>
+              <h3 class="search-feedback-title mb-0" id="searchFeedbackTitle">Search Results</h3>
+              <p class="search-feedback-subtitle mb-0" id="searchFeedbackSubtitle">Found items matching your search</p>
+            </div>
+          </div>
+          <button type="button" class="btn btn-clear-search-feedback" id="clearSearchFeedbackBtn">
+            <span class="material-icons align-middle" style="font-size: 15px;">close</span> Clear Results
+          </button>
+        </div>
+
+        <!-- Dynamic Results Grid -->
+        <div class="row g-2 g-md-3 g-lg-4" id="searchFeedbackGrid">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ ABOUT PREVIEW (Sleek & Minimalist) ============ -->
   <section class="about-preview-section" id="about-preview">
     <div class="container">

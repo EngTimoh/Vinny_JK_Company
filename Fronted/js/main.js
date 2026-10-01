@@ -990,6 +990,11 @@ function initUnifiedSearchBar() {
   const popularTags = document.querySelectorAll('.popular-tag-btn');
   const servicesPreview = document.getElementById('servicesPreviewContainer');
   const productsPreview = document.getElementById('productsPreviewContainer');
+  const feedbackSection = document.getElementById('searchFeedbackSection');
+  const feedbackGrid = document.getElementById('searchFeedbackGrid');
+  const feedbackTitle = document.getElementById('searchFeedbackTitle');
+  const feedbackSubtitle = document.getElementById('searchFeedbackSubtitle');
+  const clearFeedbackBtn = document.getElementById('clearSearchFeedbackBtn');
 
   if (!searchInput) return;
 
@@ -1015,6 +1020,80 @@ function initUnifiedSearchBar() {
     }
   }
 
+  // Render on-page instant feedback section directly below search bar
+  function renderSearchFeedback(rawTerm, matchServices, matchProducts, shouldScroll = true) {
+    if (!feedbackSection || !feedbackGrid) return;
+
+    if (!rawTerm) {
+      feedbackSection.classList.add('d-none');
+      feedbackGrid.innerHTML = '';
+      return;
+    }
+
+    const totalMatches = matchServices.length + matchProducts.length;
+
+    if (totalMatches === 0) {
+      if (feedbackTitle) feedbackTitle.innerHTML = `No matches found for "<strong>${escapeHtml(rawTerm)}</strong>"`;
+      if (feedbackSubtitle) feedbackSubtitle.textContent = 'Try checking your spelling or search using another keyword (e.g. Tint, Wrapping, PPF, Brake Pads).';
+      feedbackGrid.innerHTML = `
+        <div class="col-12 text-center py-4">
+          <div class="p-4 rounded-3 border bg-light-custom text-center mx-auto" style="max-width: 500px;">
+            <span class="material-icons mb-2 text-secondary-custom" style="font-size: 2.5rem;">search_off</span>
+            <h5 class="fw-bold mb-2">No items matched "${escapeHtml(rawTerm)}"</h5>
+            <p class="text-muted small mb-3">Explore our automotive services or spare parts catalogue directly:</p>
+            <div class="d-flex justify-content-center gap-2">
+              <a href="services.html" class="btn btn-sm btn-outline-custom">Browse Services</a>
+              <a href="products.html" class="btn btn-sm btn-primary-custom">Browse Products</a>
+            </div>
+          </div>
+        </div>
+      `;
+    } else {
+      if (feedbackTitle) feedbackTitle.innerHTML = `Search Results for "<strong>${escapeHtml(rawTerm)}</strong>"`;
+      const parts = [];
+      if (matchProducts.length > 0) parts.push(`${matchProducts.length} ${matchProducts.length === 1 ? 'product' : 'products'}`);
+      if (matchServices.length > 0) parts.push(`${matchServices.length} ${matchServices.length === 1 ? 'service' : 'services'}`);
+      if (feedbackSubtitle) feedbackSubtitle.textContent = `Found ${totalMatches} matching ${totalMatches === 1 ? 'item' : 'items'} (${parts.join(', ')})`;
+
+      let cardsHtml = '';
+      if (matchProducts.length > 0) {
+        cardsHtml += matchProducts.map(p => renderProductCard(p, true)).join('');
+      }
+      if (matchServices.length > 0) {
+        cardsHtml += matchServices.map(s => renderServiceCard(s, true)).join('');
+      }
+      feedbackGrid.innerHTML = cardsHtml;
+      initializeAutoCarousels();
+    }
+
+    feedbackSection.classList.remove('d-none');
+    if (shouldScroll) {
+      feedbackSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  // Clear all search state
+  function clearAllSearch() {
+    searchInput.value = '';
+    if (clearBtn) clearBtn.classList.add('d-none');
+    if (resultsDropdown) {
+      resultsDropdown.classList.add('d-none');
+      resultsDropdown.innerHTML = '';
+    }
+    if (feedbackSection) {
+      feedbackSection.classList.add('d-none');
+      feedbackGrid.innerHTML = '';
+    }
+    if (servicesPreview && initialServicesHTML) {
+      servicesPreview.innerHTML = initialServicesHTML;
+    }
+    if (productsPreview && initialProductsHTML) {
+      productsPreview.innerHTML = initialProductsHTML;
+    }
+    initializeAutoCarousels();
+    searchInput.focus();
+  }
+
   // Perform search and update UI
   function performSearch(filterPreviews = false) {
     const rawTerm = searchInput.value.trim();
@@ -1029,6 +1108,10 @@ function initUnifiedSearchBar() {
       if (resultsDropdown) {
         resultsDropdown.classList.add('d-none');
         resultsDropdown.innerHTML = '';
+      }
+      if (feedbackSection) {
+        feedbackSection.classList.add('d-none');
+        feedbackGrid.innerHTML = '';
       }
       activeHighlightedIndex = -1;
       // Reset previews if they were filtered
@@ -1055,6 +1138,11 @@ function initUnifiedSearchBar() {
       : [];
 
     activeHighlightedIndex = -1;
+
+    // If feedbackSection is currently visible, update it live as user edits query
+    if (feedbackSection && !feedbackSection.classList.contains('d-none')) {
+      renderSearchFeedback(rawTerm, matchServices, matchProducts, false);
+    }
 
     // Render results dropdown
     if (resultsDropdown) {
@@ -1158,25 +1246,6 @@ function initUnifiedSearchBar() {
       }
       resultsDropdown.classList.remove('d-none');
     }
-
-    // Filter on-page previews if requested (e.g. on Enter or Search button click)
-    if (filterPreviews) {
-      if (servicesPreview) {
-        if (matchServices.length > 0) {
-          servicesPreview.innerHTML = matchServices.slice(0, 4).map(s => renderServiceCard(s, true)).join('');
-        } else {
-          servicesPreview.innerHTML = '<div class="col-12 text-center text-muted py-4">No services match your search query.</div>';
-        }
-      }
-      if (productsPreview) {
-        if (matchProducts.length > 0) {
-          productsPreview.innerHTML = matchProducts.slice(0, 4).map(p => renderProductCard(p, true)).join('');
-        } else {
-          productsPreview.innerHTML = '<div class="col-12 text-center text-muted py-4">No products match your search query.</div>';
-        }
-      }
-      initializeAutoCarousels();
-    }
   }
 
   // Event Listeners
@@ -1201,24 +1270,32 @@ function initUnifiedSearchBar() {
     });
   });
 
-  // Clear Button
+  // Clear Buttons
   if (clearBtn) {
-    clearBtn.addEventListener('click', () => {
-      searchInput.value = '';
-      clearBtn.classList.add('d-none');
-      if (resultsDropdown) {
-        resultsDropdown.classList.add('d-none');
-        resultsDropdown.innerHTML = '';
-      }
-      if (servicesPreview && initialServicesHTML) {
-        servicesPreview.innerHTML = initialServicesHTML;
-      }
-      if (productsPreview && initialProductsHTML) {
-        productsPreview.innerHTML = initialProductsHTML;
-      }
-      initializeAutoCarousels();
-      searchInput.focus();
-    });
+    clearBtn.addEventListener('click', clearAllSearch);
+  }
+  if (clearFeedbackBtn) {
+    clearFeedbackBtn.addEventListener('click', clearAllSearch);
+  }
+
+  // Submit / Search Action
+  function executeSearchAction() {
+    const rawTerm = searchInput.value.trim();
+    if (!rawTerm) return;
+
+    const term = rawTerm.toLowerCase();
+    const matchServices = (currentScope === 'all' || currentScope === 'services')
+      ? allServices.filter(s => itemMatchesQuery(s, term))
+      : [];
+    const matchProducts = (currentScope === 'all' || currentScope === 'products')
+      ? allProducts.filter(p => itemMatchesQuery(p, term))
+      : [];
+
+    if (resultsDropdown) {
+      resultsDropdown.classList.add('d-none');
+    }
+
+    renderSearchFeedback(rawTerm, matchServices, matchProducts, true);
   }
 
   // Popular Quick Search Tags
@@ -1226,31 +1303,10 @@ function initUnifiedSearchBar() {
     btn.addEventListener('click', () => {
       const q = btn.dataset.query || btn.textContent.trim();
       searchInput.value = q;
-      performSearch(true);
-      searchInput.focus();
+      if (clearBtn) clearBtn.classList.remove('d-none');
+      executeSearchAction();
     });
   });
-
-  // Submit / Search Action
-  function executeSearchAction() {
-    const rawTerm = searchInput.value.trim();
-    if (!rawTerm) return;
-
-    performSearch(true);
-
-    if (resultsDropdown) {
-      resultsDropdown.classList.add('d-none');
-    }
-
-    // Scroll to relevant section on page
-    if (currentScope === 'services' && servicesPreview) {
-      document.getElementById('services-preview')?.scrollIntoView({ behavior: 'smooth' });
-    } else if (currentScope === 'products' && productsPreview) {
-      document.getElementById('products-preview')?.scrollIntoView({ behavior: 'smooth' });
-    } else if (servicesPreview) {
-      document.getElementById('services-preview')?.scrollIntoView({ behavior: 'smooth' });
-    }
-  }
 
   if (searchBtn) {
     searchBtn.addEventListener('click', executeSearchAction);
