@@ -108,7 +108,7 @@ async function fetchServices(forceRefresh = false) {
     if (cached) return cached;
   }
   try {
-    const response = await fetch(`${API_BASE_URL}/services/`);
+    const response = await fetch(`${API_BASE_URL}/services/`, { signal: AbortSignal.timeout(6000) });
     if (!response.ok) throw new Error('Failed to fetch services');
     const data = await response.json();
     apiCache.set('services', data);
@@ -125,7 +125,7 @@ async function fetchProducts(forceRefresh = false) {
     if (cached) return cached;
   }
   try {
-    const response = await fetch(`${API_BASE_URL}/products/`);
+    const response = await fetch(`${API_BASE_URL}/products/`, { signal: AbortSignal.timeout(6000) });
     if (!response.ok) throw new Error('Failed to fetch products');
     const data = await response.json();
     apiCache.set('products', data);
