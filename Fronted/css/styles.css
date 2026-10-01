@@ -1445,9 +1445,168 @@ img {
   color: rgba(255, 255, 255, 0.4);
 }
 
-/* ---------- Forms ---------- */
-.form-section {
-  background-color: var(--primary);
+/* ---------- Contact Information Card (About Page) ---------- */
+.contact-info-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 2.2rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-info-heading {
+  color: var(--text-light);
+  font-weight: 700;
+  font-size: 1.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.contact-info-subtitle {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  margin-bottom: 1.8rem;
+}
+
+.contact-info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 1.5rem;
+}
+
+.contact-info-item:last-child {
+  margin-bottom: 0;
+}
+
+.contact-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: rgba(232, 168, 37, 0.12);
+  color: var(--secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(232, 168, 37, 0.25);
+  transition: var(--transition);
+}
+
+.contact-info-item:hover .contact-icon-box {
+  background: var(--secondary);
+  color: #0b1520;
+  transform: translateY(-2px);
+}
+
+.contact-icon-box .material-icons {
+  font-size: 1.35rem;
+}
+
+.contact-info-text {
+  flex-grow: 1;
+}
+
+.contact-info-text h6 {
+  color: var(--secondary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.contact-info-text p {
+  color: var(--text-dark);
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 0;
+  line-height: 1.45;
+}
+
+.contact-value-link {
+  color: var(--text-light);
+  text-decoration: none;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.contact-value-link:hover {
+  color: var(--secondary);
+  text-decoration: underline;
+}
+
+.contact-sublink {
+  display: inline-block;
+  font-size: 0.8rem;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+  margin-top: 3px;
+  transition: var(--transition);
+}
+
+.contact-sublink:hover {
+  color: var(--secondary);
+}
+
+.contact-subtext {
+  display: block;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.working-hours-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 270px;
+  padding: 4px 0;
+  font-size: 0.88rem;
+  border-bottom: 1px dashed var(--border-color);
+}
+
+.working-hours-badge:last-child {
+  border-bottom: none;
+}
+
+.working-hours-badge .day-span {
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.working-hours-badge .time-span {
+  color: var(--text-dark);
+  font-weight: 500;
+}
+
+.working-hours-badge .time-span.status-closed {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .contact-info-card {
+  background: var(--bg-card);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .contact-info-text p,
+[data-theme="dark"] .contact-value-link,
+[data-theme="dark"] .working-hours-badge .day-span,
+[data-theme="dark"] .working-hours-badge .time-span {
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .contact-info-subtitle {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="dark"] .working-hours-badge .time-span.status-closed {
+  color: #f87171;
 }
 
 .form-card {
@@ -1890,7 +2049,8 @@ html {
     font-size: 0.92rem;
   }
 
-  .form-card {
+  .form-card,
+  .contact-info-card {
     padding: 1.3rem;
   }
 
