@@ -615,10 +615,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   const servicesPreview = document.getElementById('servicesPreviewContainer');
   const noServices = document.getElementById('noServicesFound');
   const bookingServiceSelect = document.getElementById('bookingService');
+  const unifiedSearchInput = document.getElementById('unifiedSearchInput');
 
   // Parallel fetch: Load products and services concurrently for fastest page speed
-  const needsProducts = !!(productsContainer || productsPreview);
-  const needsServices = !!(servicesContainer || servicesPreview || bookingServiceSelect);
+  const needsProducts = !!(productsContainer || productsPreview || unifiedSearchInput);
+  const needsServices = !!(servicesContainer || servicesPreview || bookingServiceSelect || unifiedSearchInput);
 
   const [products, services] = await Promise.all([
     needsProducts ? fetchProducts() : Promise.resolve(null),
@@ -648,6 +649,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const filterSelect = document.getElementById('productFilter');
     if (searchInput) searchInput.addEventListener('input', filterAndRenderProducts);
     if (filterSelect) filterSelect.addEventListener('change', filterAndRenderProducts);
+
+    const productSearchParam = urlParams.get('search');
+    if (productSearchParam && searchInput) {
+      searchInput.value = productSearchParam;
+      filterAndRenderProducts();
+    }
 
     if (urlParams.get('product') && document.getElementById('productDetailModal')) {
       const pId = parseInt(urlParams.get('product'), 10);
@@ -680,9 +687,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (serviceSearchInput) serviceSearchInput.addEventListener('input', filterAndRenderServices);
     if (serviceSortSelect) serviceSortSelect.addEventListener('change', filterAndRenderServices);
 
+    const serviceSearchParam = urlParams.get('search');
+    if (serviceSearchParam && serviceSearchInput) {
+      serviceSearchInput.value = serviceSearchParam;
+      filterAndRenderServices();
+    }
+
     if (urlParams.get('service') && document.getElementById('serviceDetailModal')) {
       const sId = parseInt(urlParams.get('service'), 10);
       setTimeout(() => openServiceDetail(sId), 100);
+    }
+
+    // Top Unified Search Bar initialization (Index page)
+    if (unifiedSearchInput) {
+      initUnifiedSearchBar();
     }
 
     // Booking form setup (using the already fetched services, NO extra network request)
@@ -864,6 +882,339 @@ function filterAndRenderProducts() {
     container.innerHTML = '';
     if (noProducts) noProducts.classList.remove('d-none');
   }
+}
+
+// ---- Top Unified Search Bar (Services & Products) ----
+function initUnifiedSearchBar() {
+  const searchInput = document.getElementById('unifiedSearchInput');
+  const clearBtn = document.getElementById('unifiedSearchClear');
+  const searchBtn = document.getElementById('unifiedSearchBtn');
+  const resultsDropdown = document.getElementById('unifiedSearchResults');
+  const scopeTabs = document.querySelectorAll('.scope-tab');
+  const popularTags = document.querySelectorAll('.popular-tag-btn');
+  const servicesPreview = document.getElementById('servicesPreviewContainer');
+  const productsPreview = document.getElementById('productsPreviewContainer');
+
+  if (!searchInput) return;
+
+  let currentScope = 'all';
+  let activeHighlightedIndex = -1;
+  const initialServicesHTML = servicesPreview ? servicesPreview.innerHTML : '';
+  const initialProductsHTML = productsPreview ? productsPreview.innerHTML : '';
+
+  // Clean HTML escaping
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  // Update placeholder based on active scope
+  function updatePlaceholder() {
+    if (currentScope === 'services') {
+      searchInput.placeholder = 'Search services (e.g. Window Tinting, PPF, Wrapping)...';
+    } else if (currentScope === 'products') {
+      searchInput.placeholder = 'Search products (e.g. Films, Spare Parts, Lubricants)...';
+    } else {
+      searchInput.placeholder = 'Search services or products by name or description...';
+    }
+  }
+
+  // Perform search and update UI
+  function performSearch(filterPreviews = false) {
+    const rawTerm = searchInput.value.trim();
+    const term = rawTerm.toLowerCase();
+
+    // Toggle clear button
+    if (clearBtn) {
+      clearBtn.classList.toggle('d-none', rawTerm.length === 0);
+    }
+
+    if (!term) {
+      if (resultsDropdown) {
+        resultsDropdown.classList.add('d-none');
+        resultsDropdown.innerHTML = '';
+      }
+      activeHighlightedIndex = -1;
+      // Reset previews if they were filtered
+      if (filterPreviews) {
+        if (servicesPreview && initialServicesHTML) {
+          servicesPreview.innerHTML = initialServicesHTML;
+        }
+        if (productsPreview && initialProductsHTML) {
+          productsPreview.innerHTML = initialProductsHTML;
+        }
+        initializeAutoCarousels();
+      }
+      return;
+    }
+
+    // Filter matching Services
+    const matchServices = (currentScope === 'all' || currentScope === 'services')
+      ? allServices.filter(s =>
+          (s.name && s.name.toLowerCase().includes(term)) ||
+          (s.description && s.description.toLowerCase().includes(term))
+        )
+      : [];
+
+    // Filter matching Products
+    const matchProducts = (currentScope === 'all' || currentScope === 'products')
+      ? allProducts.filter(p =>
+          (p.name && p.name.toLowerCase().includes(term)) ||
+          (p.description && p.description.toLowerCase().includes(term)) ||
+          (p.category && p.category.toLowerCase().includes(term))
+        )
+      : [];
+
+    activeHighlightedIndex = -1;
+
+    // Render results dropdown
+    if (resultsDropdown) {
+      if (matchServices.length === 0 && matchProducts.length === 0) {
+        resultsDropdown.innerHTML = `
+          <div class="search-empty-state">
+            No matches found for "<strong>${escapeHtml(rawTerm)}</strong>".
+          </div>
+          <div class="search-dropdown-footer">
+            <a href="services.html">Browse All Services &rarr;</a>
+            <a href="products.html">Browse All Products &rarr;</a>
+          </div>
+        `;
+      } else {
+        let html = '';
+
+        // Services section
+        if (matchServices.length > 0) {
+          html += `
+            <div class="search-results-group">
+              <div class="search-group-header">
+                <span>Services</span>
+                <span class="group-count">${matchServices.length} found</span>
+              </div>
+          `;
+          matchServices.slice(0, 4).forEach(s => {
+            html += `
+              <a href="services.html?service=${s.id}" class="search-result-item" data-type="service" data-id="${s.id}">
+                <div class="result-info">
+                  <div class="result-title">${formatCardTitle(s.name)}</div>
+                  <div class="result-sub">${truncateText(s.description || 'Professional auto service in Nairobi', 70)}</div>
+                </div>
+                <div class="result-meta">
+                  <div class="result-price">${formatPrice(s.price)}</div>
+                  <span class="result-badge badge-service">Service</span>
+                </div>
+              </a>
+            `;
+          });
+          if (matchServices.length > 4) {
+            html += `
+              <div class="search-more-link">
+                <a href="services.html?search=${encodeURIComponent(rawTerm)}">See all ${matchServices.length} matching services &rarr;</a>
+              </div>
+            `;
+          }
+          html += `</div>`;
+        }
+
+        // Products section
+        if (matchProducts.length > 0) {
+          html += `
+            <div class="search-results-group">
+              <div class="search-group-header">
+                <span>Products</span>
+                <span class="group-count">${matchProducts.length} found</span>
+              </div>
+          `;
+          matchProducts.slice(0, 4).forEach(p => {
+            const inStock = p.is_available && p.stock_quantity > 0;
+            const effectivePrice = p.discount_percentage ? p.discounted_price : p.price;
+            let catName = p.category;
+            if (catName === '1') catName = 'Spare Parts';
+            else if (catName === '2') catName = 'Electrical';
+            else if (catName === '3') catName = 'Service Parts';
+            else if (catName === '4') catName = 'Lubricants';
+            else if (!catName || /^\d+$/.test(catName)) catName = 'Auto Product';
+
+            html += `
+              <a href="products.html?product=${p.id}" class="search-result-item" data-type="product" data-id="${p.id}">
+                <div class="result-info">
+                  <div class="result-title">${formatCardTitle(p.name)}</div>
+                  <div class="result-sub">${catName}</div>
+                </div>
+                <div class="result-meta">
+                  <div class="result-price">${formatPrice(effectivePrice)}</div>
+                  <span class="result-badge ${inStock ? 'badge-stock' : 'badge-out'}">${inStock ? 'In Stock' : 'Out of Stock'}</span>
+                </div>
+              </a>
+            `;
+          });
+          if (matchProducts.length > 4) {
+            html += `
+              <div class="search-more-link">
+                <a href="products.html?search=${encodeURIComponent(rawTerm)}">See all ${matchProducts.length} matching products &rarr;</a>
+              </div>
+            `;
+          }
+          html += `</div>`;
+        }
+
+        // Footer links
+        html += `
+          <div class="search-dropdown-footer">
+            <a href="services.html?search=${encodeURIComponent(rawTerm)}">All Services (${matchServices.length})</a>
+            <a href="products.html?search=${encodeURIComponent(rawTerm)}">All Products (${matchProducts.length})</a>
+          </div>
+        `;
+
+        resultsDropdown.innerHTML = html;
+      }
+      resultsDropdown.classList.remove('d-none');
+    }
+
+    // Filter on-page previews if requested (e.g. on Enter or Search button click)
+    if (filterPreviews) {
+      if (servicesPreview) {
+        if (matchServices.length > 0) {
+          servicesPreview.innerHTML = matchServices.slice(0, 4).map(s => renderServiceCard(s, true)).join('');
+        } else {
+          servicesPreview.innerHTML = '<div class="col-12 text-center text-muted py-4">No services match your search query.</div>';
+        }
+      }
+      if (productsPreview) {
+        if (matchProducts.length > 0) {
+          productsPreview.innerHTML = matchProducts.slice(0, 4).map(p => renderProductCard(p, true)).join('');
+        } else {
+          productsPreview.innerHTML = '<div class="col-12 text-center text-muted py-4">No products match your search query.</div>';
+        }
+      }
+      initializeAutoCarousels();
+    }
+  }
+
+  // Event Listeners
+  searchInput.addEventListener('input', () => performSearch(false));
+
+  searchInput.addEventListener('focus', () => {
+    if (searchInput.value.trim().length > 0) {
+      performSearch(false);
+    }
+  });
+
+  // Scope Tabs
+  scopeTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      scopeTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentScope = tab.dataset.scope || 'all';
+      updatePlaceholder();
+      if (searchInput.value.trim().length > 0) {
+        performSearch(false);
+      }
+    });
+  });
+
+  // Clear Button
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      clearBtn.classList.add('d-none');
+      if (resultsDropdown) {
+        resultsDropdown.classList.add('d-none');
+        resultsDropdown.innerHTML = '';
+      }
+      if (servicesPreview && initialServicesHTML) {
+        servicesPreview.innerHTML = initialServicesHTML;
+      }
+      if (productsPreview && initialProductsHTML) {
+        productsPreview.innerHTML = initialProductsHTML;
+      }
+      initializeAutoCarousels();
+      searchInput.focus();
+    });
+  }
+
+  // Popular Quick Search Tags
+  popularTags.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const q = btn.dataset.query || btn.textContent.trim();
+      searchInput.value = q;
+      performSearch(true);
+      searchInput.focus();
+    });
+  });
+
+  // Submit / Search Action
+  function executeSearchAction() {
+    const rawTerm = searchInput.value.trim();
+    if (!rawTerm) return;
+
+    performSearch(true);
+
+    if (resultsDropdown) {
+      resultsDropdown.classList.add('d-none');
+    }
+
+    // Scroll to relevant section on page
+    if (currentScope === 'services' && servicesPreview) {
+      document.getElementById('services-preview')?.scrollIntoView({ behavior: 'smooth' });
+    } else if (currentScope === 'products' && productsPreview) {
+      document.getElementById('products-preview')?.scrollIntoView({ behavior: 'smooth' });
+    } else if (servicesPreview) {
+      document.getElementById('services-preview')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  if (searchBtn) {
+    searchBtn.addEventListener('click', executeSearchAction);
+  }
+
+  // Keyboard navigation inside dropdown
+  searchInput.addEventListener('keydown', (e) => {
+    if (!resultsDropdown || resultsDropdown.classList.contains('d-none')) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        executeSearchAction();
+      }
+      return;
+    }
+
+    const items = resultsDropdown.querySelectorAll('.search-result-item');
+    if (!items.length) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        executeSearchAction();
+      }
+      return;
+    }
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      activeHighlightedIndex = (activeHighlightedIndex + 1) % items.length;
+      items.forEach((it, idx) => it.classList.toggle('highlighted', idx === activeHighlightedIndex));
+      items[activeHighlightedIndex]?.scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      activeHighlightedIndex = (activeHighlightedIndex - 1 + items.length) % items.length;
+      items.forEach((it, idx) => it.classList.toggle('highlighted', idx === activeHighlightedIndex));
+      items[activeHighlightedIndex]?.scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (activeHighlightedIndex >= 0 && items[activeHighlightedIndex]) {
+        items[activeHighlightedIndex].click();
+      } else {
+        executeSearchAction();
+      }
+    } else if (e.key === 'Escape') {
+      resultsDropdown.classList.add('d-none');
+    }
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    const searchBox = document.querySelector('.search-input-box');
+    if (searchBox && !searchBox.contains(e.target)) {
+      if (resultsDropdown) resultsDropdown.classList.add('d-none');
+    }
+  });
 }
 
 // ---- Product Detail Modal ----
