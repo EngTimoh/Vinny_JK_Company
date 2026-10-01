@@ -31,7 +31,27 @@ function formatPrice(amount) {
 
 function truncateText(text, maxLen) {
   if (!text) return '';
-  return text.length > maxLen ? text.substring(0, maxLen) + '...' : text;
+  const clean = text.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+  if (clean.length <= maxLen) return clean;
+  const sub = clean.slice(0, maxLen);
+  const lastSpace = sub.lastIndexOf(' ');
+  return (lastSpace > maxLen * 0.6 ? sub.slice(0, lastSpace) : sub).trim() + '...';
+}
+
+function formatCardTitle(title) {
+  if (!title) return '';
+  let str = title.trim();
+  // If the title is in ALL CAPS and longer than 3 characters, format with clean Title Case
+  if (str === str.toUpperCase() && str.length > 3) {
+    str = str.toLowerCase().replace(/\b\w+/g, word => {
+      const upper = word.toUpperCase();
+      if (['PPF', 'BMW', 'SUV', 'SUVS', 'GPS', 'AOS', 'LED', 'VW', 'COD', '4WD', '2WD'].includes(upper)) {
+        return upper;
+      }
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    });
+  }
+  return str;
 }
 
 function getImageUrl(imagePath) {
@@ -297,7 +317,6 @@ function initializeAutoCarousels() {
 function generateImageSliderHTML(item, type, isPreview = false) {
   const images = item.images || [];
   let allImages = [];
-  const imageHeight = isPreview ? 120 : 160;
   if (images.length > 0) {
     allImages = images;
   } else if (item.image) {
@@ -306,49 +325,55 @@ function generateImageSliderHTML(item, type, isPreview = false) {
     allImages = [{ image: 'https://via.placeholder.com/400x250?text=' + (type === 'service' ? 'Service' : 'Product'), image_type: 'general' }];
   }
 
+  const renderBadge = (iType) => {
+    if (!iType) return '';
+    const norm = iType.toLowerCase();
+    if (norm === 'before' || norm === 'after') {
+      return `<span class="car-badge-type ${norm === 'after' ? 'car-badge-after' : 'car-badge-before'}">${norm}</span>`;
+    }
+    return '';
+  };
+
   if (allImages.length === 1) {
     const imgUrl = getImageUrl(allImages[0].image);
-    let badgeHtml = '';
-    if (!!allImages[0].image_type && ['before', 'after'].includes(allImages[0].image_type.toLowerCase())) {
-         badgeHtml = `<span class="badge bg-warning text-dark position-absolute m-2" style="top:0; left:0; z-index:5; font-size: 0.8rem; font-weight: bold; text-transform: uppercase;">${allImages[0].image_type}</span>`;
-    }
-    return `<div style="position:relative;">${badgeHtml}<img src="${imgUrl}" class="card-img-top" alt="${item.name}" style="height: ${imageHeight}px; object-fit: cover;" loading="lazy" decoding="async" onerror="this.src='https://via.placeholder.com/400x250?text=${type}'"></div>`;
+    const badgeHtml = renderBadge(allImages[0].image_type);
+    return `
+      <div class="card-img-wrapper">
+        ${badgeHtml}
+        <img src="${imgUrl}" class="card-img-top" alt="${item.name || ''}" loading="lazy" decoding="async" onerror="this.src='https://via.placeholder.com/400x250?text=${type}'">
+      </div>
+    `;
   }
 
   const carouselId = `carousel-${type}-${item.id}`;
   const itemsHtml = allImages.map((img, index) => {
-    let badgeHtml = '';
-    let iType = img.image_type ? img.image_type.toLowerCase() : '';
-    if (iType === 'before' || iType === 'after') {
-      badgeHtml = `<span class="badge bg-warning text-dark position-absolute m-2" style="top:0; left:0; z-index:5; font-size: 0.8rem; font-weight: bold; text-transform: uppercase;">${img.image_type}</span>`;
-    }
+    const badgeHtml = renderBadge(img.image_type);
     return `
-      <div class="carousel-item ${index === 0 ? 'active' : ''}">
+      <div class="carousel-item ${index === 0 ? 'active' : ''} h-100">
         ${badgeHtml}
-        <img src="${getImageUrl(img.image)}" class="d-block w-100 card-img-top" alt="${item.name}" style="height: ${imageHeight}px; object-fit: cover;" loading="lazy" decoding="async" onerror="this.src='https://via.placeholder.com/400x250?text=${type}'">
+        <img src="${getImageUrl(img.image)}" class="d-block w-100 h-100 card-img-top" alt="${item.name || ''}" loading="lazy" decoding="async" onerror="this.src='https://via.placeholder.com/400x250?text=${type}'">
       </div>
     `;
   }).join('');
 
   return `
-    <div id="${carouselId}" class="carousel slide carousel-fade auto-start-carousel" data-bs-ride="carousel" data-bs-interval="5000" onclick="event.stopPropagation();">
-      <div class="carousel-inner">
+    <div id="${carouselId}" class="carousel slide carousel-fade auto-start-carousel card-img-wrapper" data-bs-ride="carousel" data-bs-interval="5000" onclick="event.stopPropagation();">
+      <div class="carousel-inner h-100">
         ${itemsHtml}
       </div>
-      <button class="carousel-control-prev" type="button" data-bs-target="#${carouselId}" data-bs-slide="prev">
+      <button class="carousel-control-prev" type="button" data-bs-target="#${carouselId}" data-bs-slide="prev" aria-label="Previous">
         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
       </button>
-      <button class="carousel-control-next" type="button" data-bs-target="#${carouselId}" data-bs-slide="next">
+      <button class="carousel-control-next" type="button" data-bs-target="#${carouselId}" data-bs-slide="next" aria-label="Next">
         <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span>
       </button>
     </div>
   `;
 }
 
 function renderServiceCard(service, isPreview) {
-  const desc = truncateText(service.description, 70);
+  const formattedTitle = formatCardTitle(service.name);
+  const formattedDesc = truncateText(service.description, isPreview ? 80 : 120);
   const imageHTML = generateImageSliderHTML(service, 'service', isPreview);
 
   return `
@@ -356,16 +381,16 @@ function renderServiceCard(service, isPreview) {
       <div class="card-custom ${isPreview ? 'card-custom-preview' : ''}">
         ${imageHTML}
         <div class="card-body">
-          <h5 class="card-title">${service.name}</h5>
-          <p class="card-text">${desc}</p>
+          <h5 class="card-title" title="${service.name || ''}">${formattedTitle}</h5>
+          <p class="card-text">${formattedDesc}</p>
           <div class="card-price">${formatPrice(service.price)}</div>
         </div>
         <div class="card-footer-custom">
           <button class="btn btn-primary-custom w-100" onclick="openServiceDetail(${service.id})">
             View Details
           </button>
-          </div>
         </div>
+      </div>
     </div>
   `;
 }
@@ -383,9 +408,11 @@ window.selectServiceForBooking = function (serviceId, servicePrice) {
     }
   }
 };
+
 function renderProductCard(product, isPreview) {
+  const formattedTitle = formatCardTitle(product.name);
+  const formattedDesc = truncateText(product.description, isPreview ? 80 : 120);
   const imageHTML = generateImageSliderHTML(product, 'product', isPreview);
-  const desc = truncateText(product.description, isPreview ? 60 : 80);
   const inStock = product.is_available && product.stock_quantity > 0;
   const stockText = inStock ? `${product.stock_quantity} in stock` : 'Out of Stock';
   const stockClass = inStock ? 'in-stock' : 'out-of-stock';
@@ -399,10 +426,7 @@ function renderProductCard(product, isPreview) {
   const priceHtml = hasDiscount
     ? `<span class="price-original">${formatPrice(product.price)}</span>
        <span class="price-discounted">${formatPrice(product.discounted_price)}</span>`
-    : `<div class="card-price">${formatPrice(product.price)}</div>`;
-
-  // Category tag removed as per request
-  const categoryTag = '';
+    : `<div class="card-price mb-0">${formatPrice(product.price)}</div>`;
 
   const safeName = (product.name || '').replace(/'/g, "\\'");
   const effectivePrice = hasDiscount ? product.discounted_price : product.price;
@@ -418,16 +442,15 @@ function renderProductCard(product, isPreview) {
   return `
     <div class="${isPreview ? 'col-sm-6 col-lg-4' : 'col-sm-6 col-lg-4 col-xl-3'}">
       <div class="card-custom ${isPreview ? 'card-custom-preview' : ''}">
-        <div class="card-img-container">
+        <div class="position-relative">
           ${discountBadge}
           <span class="card-stock-badge ${stockClass}">${stockText}</span>
           ${imageHTML}
         </div>
         <div class="card-body">
-          ${categoryTag}
-          <h5 class="card-title">${product.name}</h5>
-          <p class="card-text">${desc}</p>
-          <div class="d-flex align-items-center gap-2">${priceHtml}</div>
+          <h5 class="card-title" title="${product.name || ''}">${formattedTitle}</h5>
+          <p class="card-text">${formattedDesc}</p>
+          <div class="d-flex align-items-center gap-2 mb-2">${priceHtml}</div>
         </div>
         <div class="card-footer-custom d-flex gap-2">
           <button class="btn btn-primary-custom flex-grow-1" onclick="openProductDetail(${product.id})">
@@ -855,7 +878,7 @@ window.openProductDetail = function(productId) {
   if (pCat === '3') pCat = 'Service parts';
   if (pCat === '4') pCat = 'Lubricants';
 
-  document.getElementById('productDetailName').textContent = product.name || 'Product';
+  document.getElementById('productDetailName').textContent = formatCardTitle(product.name) || 'Product';
   document.getElementById('productDetailCategory').innerHTML = (pCat && !/^\d+$/.test(pCat)) ? `<span class="category-tag">${pCat.toUpperCase()}</span>` : '';
   document.getElementById('productDetailDescription').textContent = product.description || '';
 
@@ -908,7 +931,7 @@ window.openServiceDetail = function(serviceId) {
     <button type="button" data-bs-target="#serviceDetailCarousel" data-bs-slide-to="${i}" ${i === 0 ? 'class="active"' : ''} aria-label="Slide ${i+1}"></button>
   `).join('') : '';
 
-  document.getElementById('serviceDetailName').textContent = service.name || 'Service';
+  document.getElementById('serviceDetailName').textContent = formatCardTitle(service.name) || 'Service';
   document.getElementById('serviceDetailPrice').innerHTML = `<span class="card-price mb-0">${formatPrice(service.price)}</span>`;
 
   // Full description with markdown support
